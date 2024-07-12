@@ -11,14 +11,15 @@ export default function allFrames(items, playerControls, playerSettings, playerS
     let playerCharacterImage = document.getElementsByClassName("imageFrames");
 
     function itemsUpdate(){
-        gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates,environmentStates);
-        playerMovement(items, playerControls, playerSettings, playerStates, environmentStates.groundHeight, DOMplayerCharacter[0], playerCharacterImage[0], environmentStates.timeInterval);
-        collision(items, playerStates, playerSettings, coordinateCheck, environmentStates);
+        let currentTIme = new Date();
+        gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates, currentTIme);
+        playerMovement(items, playerControls, playerSettings, playerStates, environmentStates.groundHeight, DOMplayerCharacter[0], playerCharacterImage[0], environmentStates.timeInterval, currentTIme);
+        collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTIme);
         items.forEach((item, index) => {
             DomItems[index].style.left = item.XCordinate + "px";
             DomItems[index].style.bottom = item.YCordinate + "px";
-            if(item.isPlayer){
-                playerAnimation(item, playerCharacterImage[0]);
+            if(item.isPlayer) {
+                playerAnimation(item, playerCharacterImage[0], playerSettings, currentTIme);
             }
         });
     }

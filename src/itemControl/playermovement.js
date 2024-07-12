@@ -1,4 +1,4 @@
-export function playerMovement(items, playerControls, playerSettings, playerStates, groundHeight, DOMplayerCharacter, playerCharacterImage, timeInterval) {
+export function playerMovement(items, playerControls, playerSettings, playerStates, groundHeight, DOMplayerCharacter, playerCharacterImage, timeInterval, currentTime) {
 
     let maxXVelocity = playerSettings.maxXVelocity;
     let playerAcceleration = playerSettings.playerAcceleration;
@@ -6,31 +6,34 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
     let dashVelocity = playerSettings.dashVelocity;
 
     let playerIndex = items.findIndex((item) => item.isPlayer);
-    let currentXVelocity = items[playerIndex].XVelocity
+    let currentXVelocity = items[playerIndex].XVelocity;
 
     if(items[playerIndex].YCordinate < groundHeight + 5){
       playerStates.dashCount = playerSettings.maxDashCount;
       playerStates.jumpAvailable = true;
     }
     if(playerControls.Space && playerStates.jumpAvailable){
-      items[playerIndex].YCordinate = items[playerIndex].YCordinate;
-      items[playerIndex].YVelocity = (playerControls.ArrowDown? 1.2 : 1) * jumpVelocity;
-      playerStates.jumpAvailable = false;
+      let jumpAllowedDeadline = new Date(playerStates.lastJumpableCollisionTime.getTime() + playerSettings.minJumpDeadline*(timeInterval/10));
+      if(jumpAllowedDeadline > currentTime || items[playerIndex].YCordinate < (groundHeight + 5)){
+        items[playerIndex].YCordinate = items[playerIndex].YCordinate + 1;
+        items[playerIndex].YVelocity = (playerControls.ArrowDown? 1.2 : 1) * jumpVelocity;
+        playerStates.jumpAvailable = false;
+      }
     }
     if(items[playerIndex].type == "ball"
       && (DOMplayerCharacter.offsetHeight <= 2*items[playerIndex].ballradius || DOMplayerCharacter.offsetWidth <= 1.7*items[playerIndex].ballradius)
-      && new Date() >= playerStates.lastDashTime){
+      && currentTime >= playerStates.lastDashTime){
       DOMplayerCharacter.style.height = items[playerIndex].ballradius*2 + "px";
       DOMplayerCharacter.style.width = items[playerIndex].ballradius*2 + "px";
       playerCharacterImage.style.height = items[playerIndex].ballradius*2 + "px";
       playerCharacterImage.style.width = items[playerIndex].ballradius*2 + "px";
     }
-    if(playerControls.Shift && playerStates.dashCount > 0 && playerStates.lastDashTime <= new Date()){
-      items[playerIndex].YCordinate = items[playerIndex].YCordinate;
+    if(playerControls.Shift && playerStates.dashCount > 0 && playerStates.lastDashTime <= currentTime){
+      items[playerIndex].YCordinate = items[playerIndex].YCordinate + 1;
       --playerStates.dashCount;
       playerStates.jumpAvailable = false;
-      let currentDateTime = new Date();
-      playerStates.lastDashTime = currentDateTime.setMilliseconds(currentDateTime.getMilliseconds() + playerSettings.minDashDelay*(timeInterval/10));
+      console.log("dash",currentTime.getTime());
+      playerStates.lastDashTime = new Date(currentTime.getTime() + playerSettings.minDashDelay*(timeInterval/10));
       if(playerControls.ArrowLeft && playerControls.ArrowUp){
         items[playerIndex].YVelocity = 0.8 * dashVelocity;
         items[playerIndex].XVelocity = -0.8 * dashVelocity;
@@ -97,12 +100,12 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
     if(DOMplayerCharacter.offsetHeight >= items[playerIndex].ballradius*1.7
       && items[playerIndex].YCordinate <= groundHeight
       && playerControls.ArrowDown) {
-      DOMplayerCharacter.style.height = items[playerIndex].ballradius*1.6 + "px";
-      playerCharacterImage.style.height = items[playerIndex].ballradius*1.6 + "px";
+      DOMplayerCharacter.style.height = items[playerIndex].ballradius*1.8 + "px";
+      playerCharacterImage.style.height = items[playerIndex].ballradius*1.8 + "px";
     }
     else if(DOMplayerCharacter.offsetHeight <= items[playerIndex].ballradius*1.7 &&
       (items[playerIndex].YCordinate > groundHeight || !playerControls.ArrowDown)){
-      DOMplayerCharacter.style.height = items[playerIndex].ballradius*2.2 + "px";
+      DOMplayerCharacter.style.height = items[playerIndex].ballradius*2 + "px";
       playerCharacterImage.style.height = items[playerIndex].ballradius*2 + "px";
     }
 }

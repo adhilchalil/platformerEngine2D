@@ -7,10 +7,8 @@ const dashResetAngleRight = Number(process.env.NEXT_PUBLIC_PLAYER_DASHRESET_ANGL
 const DashResetCollisionAngleRange = [jumpResetAngleRight*(Pi/180),jumpResetAngleLeft*(Pi/180)];
 const JumpResetCollisionAngleRange = [dashResetAngleRight*(Pi/180),dashResetAngleLeft*(Pi/180)];
 
-export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates) {
-
-
-
+export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTIme) {
+    
     items.forEach((item1,index1) => {
         items.forEach((item2,index2) => {
             // If both items are RIGID(collides but does not react to collisions) no collision can happen
@@ -48,14 +46,14 @@ export default function collision(items, playerStates, playerSettings, coordinat
                         overLapCorrection(item1, item2, overlappingDistance, horizontalDistance, verticalDistance, totalDistance, ballRadiusRatio);
 
                         if(item1.isPlayer) {
-                            playerMovementResets(collisionAngle, playerStates, playerSettings);
+                            playerMovementResets(collisionAngle, playerStates, playerSettings, currentTIme);
                         }
                         
                         else if(item2.isPlayer) {
-                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings);
+                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTIme);
                         }
 
-                        collisionVelocityExchange(item1, item2, collisionAngle, environmentStates, avgElasticity)
+                        collisionVelocityExchange(item1, item2, collisionAngle, playerStates, environmentStates, avgElasticity);
                     }
                 }
                 
@@ -144,13 +142,13 @@ export default function collision(items, playerStates, playerSettings, coordinat
                             let avgElasticity = ((item1.elasticity == undefined? 1 : item1.elasticity) + (item2.elasticity == undefined? 1 : item2.elasticity))/2;
 
                             if(ball.isPlayer){
-                                playerMovementResets(collisionAngle, playerStates, playerSettings);
+                                playerMovementResets(collisionAngle, playerStates, playerSettings, currentTIme);
                             }
                             else if(box.isPlayer){
-                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings);
+                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTIme);
                             }
                             
-                            collisionVelocityExchange(ball, box, collisionAngle, environmentStates, avgElasticity);
+                            collisionVelocityExchange(ball, box, collisionAngle, playerStates, environmentStates, avgElasticity);
                         }
                     }
                 }
@@ -181,7 +179,7 @@ let overLapCorrection = (item1, item2, overlappingDistance, horizontalDistance, 
     }
 }
 
-let collisionVelocityExchange = (item1, item2, collisionAngle, environmentStates, avgElasticity) => {
+let collisionVelocityExchange = (item1, item2, collisionAngle, playerStates, environmentStates, avgElasticity) => {
     if(item1.rigid){
         let totalitem2Velocity = rootOfSquares([item2.XVelocity,item2.YVelocity]);
         
@@ -279,13 +277,14 @@ let rootOfPositiveSquares = (numbers) => {
     return Math.sqrt(sumOfSquares);
 }
 
-let playerMovementResets = (collisionAngle, playerStates, playerSettings) => {
+let playerMovementResets = (collisionAngle, playerStates, playerSettings, currentTIme) => {
     if(collisionAngle > DashResetCollisionAngleRange[0] && collisionAngle < DashResetCollisionAngleRange[1]){
         playerStates.dashCount = playerSettings.maxDashCount;
         playerStates.jumpAvailable = true;
     }
     if(collisionAngle >= JumpResetCollisionAngleRange[0] && collisionAngle < JumpResetCollisionAngleRange[1]){
         playerStates.jumpAvailable = true;
+        playerStates.lastJumpableCollisionTime = currentTIme;
     }
 }
 

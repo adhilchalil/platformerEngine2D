@@ -1,4 +1,4 @@
-export default function gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates) {
+export default function gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates, currentTIme) {
     let ItemWithGravityIndex = 0;
 
     const groundHeight = environmentStates.groundHeight;

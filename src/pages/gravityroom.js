@@ -19,7 +19,8 @@ const environmentStates = {
     restrictedBoundary : restrictedBoundary,
     groundHeight : groundheight,
     maxYVelocity : Number(process.env.NEXT_PUBLIC_MAX_Y_VELOCITY),
-    gravityAcceleration: gravityrate*0.01
+    gravityAcceleration: gravityrate*0.01,
+    showHitBox: Number(process.env.NEXT_PUBLIC_SHOW_HITBOX)? true : false
 };
 
 const playerControls = {
@@ -39,6 +40,7 @@ const playerSettings = {
     XVelocityDecay: Number(process.env.NEXT_PUBLIC_PLAYER_XVELOCITY_DECAY),
     jumpVelocity: Number(process.env.NEXT_PUBLIC_PLAYER_JUMP_VELOCITY),
     dashVelocity: Number(process.env.NEXT_PUBLIC_PLAYER_DASH_VELOCITY),
+    minJumpDeadline: Number(process.env.NEXT_PUBLIC_PLAYER_JUMP_DEADLINE),
     minDashDelay: Number(process.env.NEXT_PUBLIC_PLAYER_DASH_DELAY), //in millisec
     maxDashCount: Number(process.env.NEXT_PUBLIC_PLAYER_DASH_COUNT),
     minimumGroundVelocity: Number(process.env.NEXT_PUBLIC_PLAYER_MINIMUM_GROUND_VELOCITY),
@@ -48,54 +50,81 @@ const playerSettings = {
 const playerStates = {
     jumpAvailable: true,
     dashCount: 1,
-    lastDashTime: new Date()
+    lastDashTime: new Date(),
+    lastJumpableCollisionTime: new Date(),
 };
 
 const items = [
-    {
-        type: "ball",
-        ballradius: 65, //pixels
-        ballcolor:"red",
-        XCordinate: 1000, //percentage
-        YCordinate: 400, //percentage
-        XVelocity: 2,
-        YVelocity: 2,
-        gravity: true,
-        elasticity: 0.7,
-        rigid: true,
-    },
+    // {
+    //     type: "ball",
+    //     ballradius: 65, //pixels
+    //     ballcolor: "red",
+    //     XCordinate: 1000, //percentage
+    //     YCordinate: 400, //percentage
+    //     XVelocity: 2,
+    //     YVelocity: 2,
+    //     gravity: true,
+    //     elasticity: 0.7,
+    //     rigid: true,
+    //     hitboxRadiusRatio: 1
+    // },
     {
         type: "box",
         height: 50,
         width: 150,
         tilt: 0,
-        boxcolor:"green",
+        // boxcolor: "rgba(255, 255, 0, 0.2)",
         XCordinate: 1200,
         YCordinate: 300,
         XVelocity: 0,
         YVelocity: 0,
         gravity: false,
-        elasticity: 0.7,
+        elasticity: 0,
         rigid: true,
+        srcImage: "/platform.png",
+        hitboxWidthRatio: 1.1,
+        hitboxHeightRatio: 1.5
     },
     {
         type: "box",
-        height: 50,
-        width: 150,
-        boxcolor:"blue",
-        tilt: 90,
+        height: 100,
+        width: 300,
+        tilt: 0,
+        // boxcolor: "rgba(255, 255, 0, 0.2)",
+        XCordinate: 1500,
+        YCordinate: 300,
+        XVelocity: 0,
+        YVelocity: 0,
+        gravity: false,
+        elasticity: 0,
+        rigid: true,
+        srcImage: "/platform3.png",
+        hitboxWidthRatio: 1,
+        hitboxHeightRatio: 1.7,
+        modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+        modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+    },
+    {
+        type: "box",
+        height: 100,
+        width: 200,
+        // boxcolor: "rgba(255, 0, 0, 0.2)",
+        tilt: 0,
         XCordinate: 400,
         YCordinate: 400,
         XVelocity: 0,
         YVelocity: 0,
         gravity: false,
-        elasticity: 0.7,
+        elasticity: 0,
         rigid: true,
+        srcImage: "/platform2.png",
+        hitboxWidthRatio: 1.1,
+        hitboxHeightRatio: 1.5
     },
     {
         type: "ball",
         ballradius: 60,
-        ballcolor:"red",
+        // ballcolor: "rgba(255, 0, 0, 0.2)",
         XCordinate: 100,
         YCordinate: 100,
         XVelocity: 2,
@@ -104,6 +133,8 @@ const items = [
         elasticity: 0,
         isPlayer: true,
         rigid: false,
+        srcImage: "/walk_cycle1.png",
+        hitboxRadiusRatio: 1
     }
 ];
 
@@ -122,7 +153,7 @@ export default function gravityroom(){
 
     return ( 
         <>
-            <div className="gravitycontainer fixed" style={{backgroundColor: "grey", height: 0.95*roomHeight + "px", width : roomWidth + "px", bottom: 0.05*roomHeight + "px" }}>
+            <div className="gravitycontainer fixed" style={{backgroundColor: "grey",backgroundImage: "url('2d_platformer_background_forest.jpg')",backgroundRepeat: "no-repeat",  backgroundAttachment: "fixed",  backgroundSize: "cover", height: 0.95*roomHeight + "px", width : roomWidth + "px", bottom: 0.05*roomHeight + "px" }}>
                 {items.map((item,index) => 
                     item.type == "ball" ?
                         <Ball
@@ -134,6 +165,9 @@ export default function gravityroom(){
                             XVelocity={item.XVelocity}
                             gravity={item.gravity}
                             isPlayer={item.isPlayer}
+                            srcImage={item.srcImage}
+                            hitboxRadiusRatio={item.hitboxRadiusRatio}
+                            showHitBox={environmentStates.showHitBox}
                         ></Ball>
                         :
                         (item.type == "box" ?
@@ -147,13 +181,19 @@ export default function gravityroom(){
                                 tilt = {item.tilt}
                                 gravity={item.gravity}
                                 isPlayer={item.isPlayer}
+                                srcImage={item.srcImage}
+                                hitboxWidthRatio={item.hitboxWidthRatio}
+                                hitboxHeightRatio={item.hitboxHeightRatio}
+                                showHitBox={environmentStates.showHitBox}
+                                modelAlignmentTop={item.modelAlignmentTop}
+                                modelAlignmentLeft={item.modelAlignmentLeft}
                             ></Box>
                             :
                             ""
                         )
                 )}
             </div>
-            {restrictedBoundary?<div className="fixed gravitycontainer" style={{backgroundColor: "brown", borderTop: "3px solid black", height: groundheight + "px", width: roomWidth + "px", bottom: "0px" }}>
+            {restrictedBoundary?<div className="fixed gravitycontainer" style={{backgroundColor: "#8B4513", borderTop: "3px solid black", height: groundheight + "px", width: roomWidth + "px", bottom: "0px" }}>
             </div>:""}
             <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
                 items.forEach((item) => {
