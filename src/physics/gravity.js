@@ -1,4 +1,4 @@
-export default function gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates, currentTIme) {
+export default function gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates, currentTIme,  currentLevel, setCurrentLevel) {
     let ItemWithGravityIndex = 0;
 
     const groundHeight = environmentStates.groundHeight;
@@ -61,23 +61,24 @@ export default function gravityAndVelocityDecay(items, playerControls, playerSet
     
         }
         else {
-            if(posy <= 0) posy = environmentStates.roomHeight+itemDiameter;
-            else if(posy >= environmentStates.roomHeight+itemDiameter) posy = 0;
-            if(posx >= environmentStates.roomWidth+itemDiameter) posx = 0;
-            else if(posx <= 0) posx = environmentStates.roomWidth+itemDiameter;
+            if(posy < 0) posy = environmentStates.roomHeight+itemDiameter;
+            else if(posy > environmentStates.roomHeight+itemDiameter) posy = 0;
+            if(posx > (environmentStates.roomWidth-itemDiameter - 2) && vx > 0) {
+                setCurrentLevel(currentLevel+1); posx = 0;
+            }
+            else if(posx <= 2 && vx < 0) {
+                if(currentLevel > 1){
+                    setCurrentLevel(currentLevel-1);
+                    posx = environmentStates.roomWidth - itemDiameter - 2;
+                }
+                else{
+                    posx=0;
+                }
+            }
         }
 
         //Gravity and vertical damping
-        if(posy <= groundHeight + 2){
-            if(absoluteYVelocity <= gravityAcceleration){
-                vy = 0;
-                posy = groundHeight;
-            }
-            playerStates.jumpAvailable = true;
-        }
-        else {
-            vy = vy < -environmentStates.maxYVelocity? -environmentStates.maxYVelocity : vy - gravityAcceleration;
-        }
+        vy = vy < -environmentStates.maxYVelocity? -environmentStates.maxYVelocity : vy - gravityAcceleration;
 
         item.XCordinate = posx;
         item.YCordinate = posy;

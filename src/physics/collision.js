@@ -7,7 +7,7 @@ const dashResetAngleRight = Number(process.env.NEXT_PUBLIC_PLAYER_DASHRESET_ANGL
 const DashResetCollisionAngleRange = [jumpResetAngleRight*(Pi/180),jumpResetAngleLeft*(Pi/180)];
 const JumpResetCollisionAngleRange = [dashResetAngleRight*(Pi/180),dashResetAngleLeft*(Pi/180)];
 
-export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTIme) {
+export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime) {
     
     items.forEach((item1,index1) => {
         items.forEach((item2,index2) => {
@@ -46,11 +46,11 @@ export default function collision(items, playerStates, playerSettings, coordinat
                         overLapCorrection(item1, item2, overlappingDistance, horizontalDistance, verticalDistance, totalDistance, ballRadiusRatio);
 
                         if(item1.isPlayer) {
-                            playerMovementResets(collisionAngle, playerStates, playerSettings, currentTIme);
+                            playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
                         }
                         
                         else if(item2.isPlayer) {
-                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTIme);
+                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
                         }
 
                         collisionVelocityExchange(item1, item2, collisionAngle, playerStates, environmentStates, avgElasticity);
@@ -142,10 +142,10 @@ export default function collision(items, playerStates, playerSettings, coordinat
                             let avgElasticity = ((item1.elasticity == undefined? 1 : item1.elasticity) + (item2.elasticity == undefined? 1 : item2.elasticity))/2;
 
                             if(ball.isPlayer){
-                                playerMovementResets(collisionAngle, playerStates, playerSettings, currentTIme);
+                                playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
                             }
                             else if(box.isPlayer){
-                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTIme);
+                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
                             }
                             
                             collisionVelocityExchange(ball, box, collisionAngle, playerStates, environmentStates, avgElasticity);
@@ -277,14 +277,14 @@ let rootOfPositiveSquares = (numbers) => {
     return Math.sqrt(sumOfSquares);
 }
 
-let playerMovementResets = (collisionAngle, playerStates, playerSettings, currentTIme) => {
+let playerMovementResets = (collisionAngle, playerStates, playerSettings, currentTime) => {
     if(collisionAngle > DashResetCollisionAngleRange[0] && collisionAngle < DashResetCollisionAngleRange[1]){
         playerStates.dashCount = playerSettings.maxDashCount;
-        playerStates.jumpAvailable = true;
+        playerStates.lastRunnableCollisionAngle = collisionAngle;
     }
     if(collisionAngle >= JumpResetCollisionAngleRange[0] && collisionAngle < JumpResetCollisionAngleRange[1]){
         playerStates.jumpAvailable = true;
-        playerStates.lastJumpableCollisionTime = currentTIme;
+        playerStates.lastJumpableCollisionTime = currentTime;
     }
 }
 

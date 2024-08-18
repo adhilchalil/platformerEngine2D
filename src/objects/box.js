@@ -2,7 +2,7 @@ export default function box({height, width, boxcolor, XCordinate, YCordinate, gr
     return ( 
         <div
             className={"fixed domItem overflow-visible" + (gravity? " gravity":"") + (isPlayer? " playercharacter":"")}
-            style={{border: "0px solid black", borderRadius: "2%", transformOrigin: "bottom left", transform: `rotate(${-tilt}deg)` ,backgroundColor: boxcolor || showHitBox? (boxcolor || "rgba(255, 0, 0, 0.3)") : "rgba(255, 0, 0, 0)", width: width + "px", height: height + "px", bottom: YCordinate+"px", left: XCordinate+"px"}}
+            style={{border: (isPlayer ? "0px" : "1px") + " solid black", borderRadius: "2%", transformOrigin: "bottom left", transform: `rotate(${-tilt}deg)` ,backgroundColor: boxcolor || showHitBox? (boxcolor || "rgba(255, 0, 0, 0.3)") : "rgba(255, 0, 0, 0)", width: width + "px", height: height + "px", bottom: YCordinate+"px", left: XCordinate+"px"}}
         >
             {(isPlayer || srcImage) && 
                 <img

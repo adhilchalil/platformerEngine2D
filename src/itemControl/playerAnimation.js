@@ -1,6 +1,6 @@
 export function playerAnimation(item, playerItem, playerSettings, currentTIme, walkframeCount, jumpFrameCount, dashFrameCount, fallFrameCount) {
-  let frameCount = 2;
-  let time = currentTIme.getMilliseconds()*0.5*(Math.abs(item.XVelocity)/playerSettings.maxXVelocity);
+  let frameCount = walkframeCount;
+  let time = currentTIme.getMilliseconds()*1*(Math.abs(item.XVelocity)/playerSettings.maxXVelocity);
   if(playerItem) {
     let frameIndex = Math.round((time%250)/(250/(frameCount-1)))+1;
     if(!playerItem.src.includes("walk_cycle" + frameIndex) && Math.abs(item.XVelocity) > 0){

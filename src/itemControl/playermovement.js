@@ -7,18 +7,23 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
 
     let playerIndex = items.findIndex((item) => item.isPlayer);
     let currentXVelocity = items[playerIndex].XVelocity;
+    let jumpAllowedDeadline = new Date(playerStates.lastJumpableCollisionTime.getTime() + playerSettings.minJumpDeadline*(timeInterval/10));
+
+    if(jumpAllowedDeadline < currentTime){
+      playerStates.jumpAvailable = false;
+      playerStates.lastRunnableCollisionAngle = Math.PI/2;
+    }
 
     if(items[playerIndex].YCordinate < groundHeight + 5){
       playerStates.dashCount = playerSettings.maxDashCount;
       playerStates.jumpAvailable = true;
     }
-    if(playerControls.Space && playerStates.jumpAvailable){
-      let jumpAllowedDeadline = new Date(playerStates.lastJumpableCollisionTime.getTime() + playerSettings.minJumpDeadline*(timeInterval/10));
-      if(jumpAllowedDeadline > currentTime || items[playerIndex].YCordinate < (groundHeight + 5)){
+
+    //Jump movement
+    if(playerControls.Space && (playerStates.jumpAvailable || items[playerIndex].YCordinate < (groundHeight + 5))){
         items[playerIndex].YCordinate = items[playerIndex].YCordinate + 1;
         items[playerIndex].YVelocity = (playerControls.ArrowDown? 1.2 : 1) * jumpVelocity;
         playerStates.jumpAvailable = false;
-      }
     }
     if(items[playerIndex].type == "ball"
       && (DOMplayerCharacter.offsetHeight <= 2*items[playerIndex].ballradius || DOMplayerCharacter.offsetWidth <= 1.7*items[playerIndex].ballradius)
@@ -28,11 +33,12 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
       playerCharacterImage.style.height = items[playerIndex].ballradius*2 + "px";
       playerCharacterImage.style.width = items[playerIndex].ballradius*2 + "px";
     }
+
+    //dash movement. shift + directional
     if(playerControls.Shift && playerStates.dashCount > 0 && playerStates.lastDashTime <= currentTime){
       items[playerIndex].YCordinate = items[playerIndex].YCordinate + 1;
       --playerStates.dashCount;
       playerStates.jumpAvailable = false;
-      console.log("dash",currentTime.getTime());
       playerStates.lastDashTime = new Date(currentTime.getTime() + playerSettings.minDashDelay*(timeInterval/10));
       if(playerControls.ArrowLeft && playerControls.ArrowUp){
         items[playerIndex].YVelocity = 0.8 * dashVelocity;
@@ -54,6 +60,7 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
         DOMplayerCharacter.style.height = items[playerIndex].ballradius*2 + "px";
         playerCharacterImage.style.height = items[playerIndex].ballradius*2 + "px";
         items[playerIndex].YVelocity = dashVelocity;
+        items[playerIndex].XVelocity = 0;
       }
       else if(playerControls.ArrowLeft){
         DOMplayerCharacter.style.width = items[playerIndex].ballradius*1.9 + "px";
@@ -68,26 +75,35 @@ export function playerMovement(items, playerControls, playerSettings, playerStat
       else if(playerControls.ArrowDown){
         DOMplayerCharacter.style.width = items[playerIndex].ballradius*1.9 + "px";
         items[playerIndex].YVelocity = -dashVelocity;
+        items[playerIndex].XVelocity = 0;
       }
       else{
         items[playerIndex].XVelocity =  (playerStates.lastMoveIsRight? 1 : -1)*dashVelocity;
       }
     }
+
+    //ArrowKey Movements. directional
     if(items[playerIndex].XVelocity > -maxXVelocity  && playerControls.ArrowLeft){
       if(![...DOMplayerCharacter.classList].includes("imgflip")){
         DOMplayerCharacter.classList.add("imgflip")
       };
-      items[playerIndex].XVelocity -= playerAcceleration;
+      let Xacceleration = -playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle - Math.PI/2);
+      items[playerIndex].XVelocity += Xacceleration;
+      let YDirectionalVelocity = playerStates.lastRunnableCollisionAngle > Math.PI/2? 0 : 1;
+      let Yacceleration = YDirectionalVelocity*playerAcceleration*0.5 + YDirectionalVelocity*playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle);
+      items[playerIndex].YVelocity += Yacceleration;
     }
-
-      
 
     if(items[playerIndex].XVelocity < maxXVelocity && playerControls.ArrowRight){
       if([...DOMplayerCharacter.classList].includes("imgflip")){
         DOMplayerCharacter.classList.remove("imgflip");
       };
-      items[playerIndex].XVelocity += playerAcceleration;
-    }   
+      let Xacceleration = playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle - Math.PI/2);
+      items[playerIndex].XVelocity += Xacceleration;
+      let YDirectionalVelocity = playerStates.lastRunnableCollisionAngle > Math.PI/2? -1 : 0;
+      let Yacceleration = -YDirectionalVelocity*playerAcceleration*0.5 + YDirectionalVelocity*playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle)
+      items[playerIndex].YVelocity += Yacceleration;
+    }
 
     if(!items[playerIndex].gravity) {
       if(items[playerIndex].YVelocity > -maxXVelocity && playerControls.ArrowDown)
