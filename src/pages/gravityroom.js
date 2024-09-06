@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 var frameIntervalObject = null;
 var allRenderedItems = [];
+var levelTransitionData = {};
 
 const restrictedBoundary = Number(process.env.NEXT_PUBLIC_BOUNDARY_RESTRICTED)? true: false;
 const groundheight = Number(process.env.NEXT_PUBLIC_GROUNDHEIGHT);
@@ -83,353 +84,447 @@ const playerItems= [
         hitboxRadiusRatio: 1
     }];
 
-const levelItems = [
-    [
-        {
-            type: "box",
-            height: groundheight,
-            width: roomWidth,
-            tilt: 0,
-            boxcolor: "#8B4513",
-            XCordinate: 0,
-            YCordinate: 0,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
+const allLevelData = [
+    {
+        levelTransitions: {
+            up: null,
+            down: null,
+            left: 3,
+            right: 2
         },
-        // {
-        //     type: "ball",
-        //     ballradius: 65, //pixels
-        //     ballcolor: "red",
-        //     XCordinate: 0, //percentage
-        //     YCordinate: 0, //percentage
-        //     XVelocity: 2,
-        //     YVelocity: 2,
-        //     gravity: true,
-        //     elasticity: 0.7,
-        //     rigid: true,
-        //     hitboxRadiusRatio: 1
-        // },
-        {
-            type: "box",
-            height: 50,
-            width: 150,
-            tilt: 0,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1300,
-            YCordinate: 100,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform.png",
-            hitboxWidthRatio: 1.1,
-            hitboxHeightRatio: 1.5
+        levelRespawns: {
+            default: [100, 100],
+            up: [100, 100],
+            down: [100, 100],
+            left: [100, 100],
+            right: [2000, 100, 0.1],
         },
-        {
-            type: "box",
-            height: 100,
-            width: 300,
-            tilt: 20,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1500,
-            YCordinate: 400,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform3.png",
-            hitboxWidthRatio: 1,
-            hitboxHeightRatio: 1.7,
-            modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-            modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+        levelItems:
+            [
+                {
+                    type: "box",
+                    height: groundheight,
+                    width: roomWidth,
+                    tilt: 0,
+                    boxcolor: "#8B4513",
+                    XCordinate: 0,
+                    YCordinate: 0,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                },
+                {
+                    type: "box",
+                    height: 50,
+                    width: 50,
+                    tilt: 0,
+                    // boxcolor: "rgba(255, 255, 0, 0.2)",
+                    // boxcolor: "#777513",
+                    XCordinate: 1300,
+                    YCordinate: 100,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/fire.gif",
+                    hitboxWidthRatio: 1.6,
+                    hitboxHeightRatio: 2,
+                    modelAlignmentTop: 20,
+                    deathZone: true
+                },
+                {
+                    type: "box",
+                    height: 100,
+                    width: 300,
+                    tilt: 20,
+                    // boxcolor: "rgba(255, 255, 0, 0.2)",
+                    XCordinate: 1500,
+                    YCordinate: 400,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/platform3.png",
+                    hitboxWidthRatio: 1,
+                    hitboxHeightRatio: 1.7,
+                    modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+                    modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+                },
+                {
+                    type: "box",
+                    height: 100,
+                    width: 300,
+                    tilt: -20,
+                    // boxcolor: "rgba(255, 255, 0, 0.2)",
+                    XCordinate: 1000,
+                    YCordinate: 490,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/platform3.png",
+                    hitboxWidthRatio: 1,
+                    hitboxHeightRatio: 1.7,
+                    modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+                    modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+                },
+                {
+                    type: "box",
+                    height: 100,
+                    width: 200,
+                    // boxcolor: "rgba(255, 0, 0, 0.2)",
+                    tilt: 0,
+                    XCordinate: 400,
+                    YCordinate: 400,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/platform2.png",
+                    hitboxWidthRatio: 1.1,
+                    hitboxHeightRatio: 1.5
+                }
+            ]
+    },
+    {
+        levelTransitions: {
+            up: null,
+            down: null,
+            left: 1,
+            right: 3
         },
-        {
-            type: "box",
-            height: 100,
-            width: 300,
-            tilt: -20,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1000,
-            YCordinate: 490,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform3.png",
-            hitboxWidthRatio: 1,
-            hitboxHeightRatio: 1.7,
-            modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-            modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+        levelItems:
+            [
+                {
+                    type: "box",
+                    height: groundheight,
+                    width: roomWidth,
+                    tilt: 0,
+                    boxcolor: "#8B4513",
+                    XCordinate: 0,
+                    YCordinate: 0,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                },
+                // {
+                //     type: "ball",
+                //     ballradius: 65, //pixels
+                //     ballcolor: "red",
+                //     XCordinate: 300, //percentage
+                //     YCordinate: 300, //percentage
+                //     XVelocity: 2,
+                //     YVelocity: 2,
+                //     gravity: true,
+                //     elasticity: 0.7,
+                //     rigid: true,
+                //     hitboxRadiusRatio: 1
+                // },
+                // {
+                //     type: "box",
+                //     height: 50,
+                //     width: 150,
+                //     tilt: 0,
+                //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+                //     XCordinate: 1300,
+                //     YCordinate: 100,
+                //     XVelocity: 0,
+                //     YVelocity: 0,
+                //     gravity: false,
+                //     elasticity: 0,
+                //     rigid: true,
+                //     srcImage: "/platform.png",
+                //     hitboxWidthRatio: 1.1,
+                //     hitboxHeightRatio: 1.5
+                // },
+                // {
+                //     type: "box",
+                //     height: 100,
+                //     width: 300,
+                //     tilt: 20,
+                //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+                //     XCordinate: 1500,
+                //     YCordinate: 400,
+                //     XVelocity: 0,
+                //     YVelocity: 0,
+                //     gravity: false,
+                //     elasticity: 0,
+                //     rigid: true,
+                //     srcImage: "/platform3.png",
+                //     hitboxWidthRatio: 1,
+                //     hitboxHeightRatio: 1.7,
+                //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+                //     modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+                // },
+                // {
+                //     type: "box",
+                //     height: 100,
+                //     width: 300,
+                //     tilt: -20,
+                //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+                //     XCordinate: 1000,
+                //     YCordinate: 490,
+                //     XVelocity: 0,
+                //     YVelocity: 0,
+                //     gravity: false,
+                //     elasticity: 0,
+                //     rigid: true,
+                //     srcImage: "/platform3.png",
+                //     hitboxWidthRatio: 1,
+                //     hitboxHeightRatio: 1.7,
+                //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+                //     modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+                // },
+                {
+                    type: "box",
+                    height: 100,
+                    width: 200,
+                    // boxcolor: "rgba(255, 0, 0, 0.2)",
+                    tilt: 0,
+                    XCordinate: 400,
+                    YCordinate: 400,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/platform2.png",
+                    hitboxWidthRatio: 1.1,
+                    hitboxHeightRatio: 1.5
+                }
+            ]
+    },
+    {
+        levelTransitions: {
+            up: 3,
+            down: 3,
+            left: 2,
+            right: 1
         },
-        {
-        type: "box",
-        height: 100,
-        width: 200,
-        // boxcolor: "rgba(255, 0, 0, 0.2)",
-        tilt: 0,
-        XCordinate: 400,
-        YCordinate: 400,
-        XVelocity: 0,
-        YVelocity: 0,
-        gravity: false,
-        elasticity: 0,
-        rigid: true,
-        srcImage: "/platform2.png",
-        hitboxWidthRatio: 1.1,
-        hitboxHeightRatio: 1.5
+        levelItems:
+        [
+            {
+                type: "box",
+                height: groundheight,
+                width: 0.5*roomWidth,
+                tilt: 0,
+                boxcolor: "#8B4513",
+                XCordinate: 0,
+                YCordinate: 0,
+                XVelocity: 0,
+                YVelocity: 0,
+                gravity: false,
+                elasticity: 0,
+                rigid: true,
+            },
+            {
+                type: "box",
+                height: groundheight,
+                width: 0.3*roomWidth,
+                tilt: 0,
+                boxcolor: "#8B4513",
+                XCordinate: 0.7*roomWidth,
+                YCordinate: 0,
+                XVelocity: 0,
+                YVelocity: 0,
+                gravity: false,
+                elasticity: 0,
+                rigid: true,
+            },
+            {
+                type: "box",
+                height: groundheight,
+                width: 0.5*roomWidth,
+                tilt: 0,
+                boxcolor: "#8B4513",
+                XCordinate: 0,
+                YCordinate: roomHeight - groundheight,
+                XVelocity: 0,
+                YVelocity: 0,
+                gravity: false,
+                elasticity: 0,
+                rigid: true,
+            },
+            {
+                type: "box",
+                height: groundheight,
+                width: 0.3*roomWidth,
+                tilt: 0,
+                boxcolor: "#8B4513",
+                XCordinate: 0.7*roomWidth,
+                YCordinate: roomHeight - groundheight,
+                XVelocity: 0,
+                YVelocity: 0,
+                gravity: false,
+                elasticity: 0,
+                rigid: true,
+            },
+            // {
+            //     type: "ball",
+            //     ballradius: 65, //pixels
+            //     ballcolor: "red",
+            //     XCordinate: 300, //percentage
+            //     YCordinate: 300, //percentage
+            //     XVelocity: 2,
+            //     YVelocity: 2,
+            //     gravity: true,
+            //     elasticity: 0.7,
+            //     rigid: true,
+            //     hitboxRadiusRatio: 1
+            // },
+            // {
+            //     type: "box",
+            //     height: 50,
+            //     width: 150,
+            //     tilt: 0,
+            //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+            //     XCordinate: 1300,
+            //     YCordinate: 100,
+            //     XVelocity: 0,
+            //     YVelocity: 0,
+            //     gravity: false,
+            //     elasticity: 0,
+            //     rigid: true,
+            //     srcImage: "/platform.png",
+            //     hitboxWidthRatio: 1.1,
+            //     hitboxHeightRatio: 1.5
+            // },
+            // {
+            //     type: "box",
+            //     height: 100,
+            //     width: 300,
+            //     tilt: 20,
+            //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+            //     XCordinate: 1500,
+            //     YCordinate: 400,
+            //     XVelocity: 0,
+            //     YVelocity: 0,
+            //     gravity: false,
+            //     elasticity: 0,
+            //     rigid: true,
+            //     srcImage: "/platform3.png",
+            //     hitboxWidthRatio: 1,
+            //     hitboxHeightRatio: 1.7,
+            //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+            //     modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+            // },
+            // {
+            //     type: "box",
+            //     height: 100,
+            //     width: 300,
+            //     tilt: -20,
+            //     // boxcolor: "rgba(255, 255, 0, 0.2)",
+            //     XCordinate: 1000,
+            //     YCordinate: 490,
+            //     XVelocity: 0,
+            //     YVelocity: 0,
+            //     gravity: false,
+            //     elasticity: 0,
+            //     rigid: true,
+            //     srcImage: "/platform3.png",
+            //     hitboxWidthRatio: 1,
+            //     hitboxHeightRatio: 1.7,
+            //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
+            //     modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
+            // },
+        ]
     }
-    ],
-    [
-        {
-            type: "box",
-            height: groundheight,
-            width: roomWidth,
-            tilt: 0,
-            boxcolor: "#8B4513",
-            XCordinate: 0,
-            YCordinate: 0,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-        },
-        {
-            type: "ball",
-            ballradius: 65, //pixels
-            ballcolor: "red",
-            XCordinate: 300, //percentage
-            YCordinate: 300, //percentage
-            XVelocity: 2,
-            YVelocity: 2,
-            gravity: true,
-            elasticity: 0.7,
-            rigid: true,
-            hitboxRadiusRatio: 1
-        },
-        {
-            type: "box",
-            height: 50,
-            width: 150,
-            tilt: 0,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1300,
-            YCordinate: 100,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform.png",
-            hitboxWidthRatio: 1.1,
-            hitboxHeightRatio: 1.5
-        },
-        {
-            type: "box",
-            height: 100,
-            width: 300,
-            tilt: 20,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1500,
-            YCordinate: 400,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform3.png",
-            hitboxWidthRatio: 1,
-            hitboxHeightRatio: 1.7,
-            modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-            modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
-        },
-        {
-            type: "box",
-            height: 100,
-            width: 300,
-            tilt: -20,
-            // boxcolor: "rgba(255, 255, 0, 0.2)",
-            XCordinate: 1000,
-            YCordinate: 490,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform3.png",
-            hitboxWidthRatio: 1,
-            hitboxHeightRatio: 1.7,
-            modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-            modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
-        },
-        {
-            type: "box",
-            height: 100,
-            width: 200,
-            // boxcolor: "rgba(255, 0, 0, 0.2)",
-            tilt: 0,
-            XCordinate: 400,
-            YCordinate: 400,
-            XVelocity: 0,
-            YVelocity: 0,
-            gravity: false,
-            elasticity: 0,
-            rigid: true,
-            srcImage: "/platform2.png",
-            hitboxWidthRatio: 1.1,
-            hitboxHeightRatio: 1.5
-        }
-    ],
-    []];
-
-const items = [
-    // {
-    //     type: "ball",
-    //     ballradius: 65, //pixels
-    //     ballcolor: "red",
-    //     XCordinate: 1000, //percentage
-    //     YCordinate: 400, //percentage
-    //     XVelocity: 2,
-    //     YVelocity: 2,
-    //     gravity: true,
-    //     elasticity: 0.7,
-    //     rigid: true,
-    //     hitboxRadiusRatio: 1
-    // },
-    {
-        type: "box",
-        height: 50,
-        width: 150,
-        tilt: 0,
-        // boxcolor: "rgba(255, 255, 0, 0.2)",
-        XCordinate: 1300,
-        YCordinate: 100,
-        XVelocity: 0,
-        YVelocity: 0,
-        gravity: false,
-        elasticity: 0,
-        rigid: true,
-        srcImage: "/platform.png",
-        hitboxWidthRatio: 1.1,
-        hitboxHeightRatio: 1.5
-    },
-    {
-        type: "box",
-        height: 100,
-        width: 300,
-        tilt: 20,
-        // boxcolor: "rgba(255, 255, 0, 0.2)",
-        XCordinate: 1500,
-        YCordinate: 400,
-        XVelocity: 0,
-        YVelocity: 0,
-        gravity: false,
-        elasticity: 0,
-        rigid: true,
-        srcImage: "/platform3.png",
-        hitboxWidthRatio: 1,
-        hitboxHeightRatio: 1.7,
-        modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-        modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
-    },
-    {
-        type: "box",
-        height: 100,
-        width: 300,
-        tilt: -20,
-        // boxcolor: "rgba(255, 255, 0, 0.2)",
-        XCordinate: 1000,
-        YCordinate: 490,
-        XVelocity: 0,
-        YVelocity: 0,
-        gravity: false,
-        elasticity: 0,
-        rigid: true,
-        srcImage: "/platform3.png",
-        hitboxWidthRatio: 1,
-        hitboxHeightRatio: 1.7,
-        modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
-        modelAlignmentTop: 35, // 0 to 100, default model alignment is 50
-    },
-    {
-        type: "box",
-        height: 100,
-        width: 200,
-        // boxcolor: "rgba(255, 0, 0, 0.2)",
-        tilt: 0,
-        XCordinate: 400,
-        YCordinate: 400,
-        XVelocity: 0,
-        YVelocity: 0,
-        gravity: false,
-        elasticity: 0,
-        rigid: true,
-        srcImage: "/platform2.png",
-        hitboxWidthRatio: 1.1,
-        hitboxHeightRatio: 1.5
-    },
-    {
-        type: "ball",
-        ballradius: 60,
-        // ballcolor: "rgba(255, 0, 0, 0.2)",
-        XCordinate: 100,
-        YCordinate: 100,
-        XVelocity: 2,
-        YVelocity: 0,
-        gravity: true,
-        elasticity: 0,
-        isPlayer: true,
-        rigid: false,
-        srcImage: "/walk_cycle1.png",
-        hitboxRadiusRatio: 1
-    }
-];
+    ];
 
 export default function gravityroom(){
     const [coordinateCheckUpdate, setCoordinateCheckUpdate] = useState(1);
-    const [currentLevel, setCurrentLevel] = useState(0);
-    const [reloadLevelItems,setReloadLevelItems] = useState(0);
+    const [currentLevel, setCurrentLevel] = useState(1);
+    const [lastLevel, setLastLevel] = useState(0);
+    const [reloadLevelItems,setReloadLevelItems] = useState(false);
     const [gameCompleted, setGameCompleted] = useState(false);
     const [playerDeath, setPlayerDeath] = useState(false);
     const [levelCompleted, setLevelCompleted] = useState(false);
-    const [startGame, setStartGAme] = useState(false);
+    const [startGame, setStartGame] = useState(true);
 
-    //to refresh some non state data every few seconds using react state variables to force re-render.
+    const levelTransitionTracking = (nextLevel) => {
+        setLastLevel(currentLevel);
+        setCurrentLevel(nextLevel);
+    };
+
+    const playerDeathAnimation = () => {
+        // we do this soon
+    };
+
+    const playerLocationReset = () => {
+
+        let levelTransitionKey = "default";
+        console.log("data", allLevelData[currentLevel-1].levelTransitions, lastLevel);
+
+        for (const [key, value] of Object.entries(allLevelData[currentLevel-1].levelTransitions)) {
+            if(value == lastLevel){
+                console.log("data", key, lastLevel);
+                levelTransitionKey = key;
+            }
+        }
+
+        let respawnPoints = allLevelData[currentLevel-1].levelRespawns;
+
+        console.log("data", levelTransitionKey, respawnPoints);
+
+        playerItems[0].XCordinate = respawnPoints[levelTransitionKey][0]?respawnPoints[levelTransitionKey][0]: 0;
+        playerItems[0].YCordinate = respawnPoints[levelTransitionKey][1]?respawnPoints[levelTransitionKey][1]: 0;;
+        playerItems[0].XVelocity = respawnPoints[levelTransitionKey][2]?respawnPoints[levelTransitionKey][2]: 0;;
+        playerItems[0].YVelocity = respawnPoints[levelTransitionKey][3]?respawnPoints[levelTransitionKey][3]: 0;;
+       
+    }
+
+    const playerDeathHandler = () => {
+        clearInterval(frameIntervalObject);
+        frameIntervalObject = null;
+        setReloadLevelItems(true);
+        setPlayerDeath(true);
+    };
+
+    // IMPORTANT !!!! Dont remove. Useful later. keeps track of items corners
+    // To refresh some non state data every few seconds using react state variables to force re-render.
     // const refreshData = setInterval(() => {
     //     setCoordinateCheckUpdate(coordinateCheckUpdate + 1);
     // }, 3000);
 
     useEffect(() => {
-        if(currentLevel > 0){
-            allRenderedItems = [...levelItems[currentLevel - 1], ...playerItems];
+        console.log("useEffect", currentLevel, playerDeath, allLevelData.length, startGame, frameIntervalObject)
+        if(currentLevel > 0 && !playerDeath){
+            allRenderedItems = [...allLevelData[currentLevel - 1].levelItems, ...playerItems];
             setReloadLevelItems(true);
         }
-        if(currentLevel > 0 && currentLevel <= levelItems.length){
-            allRenderedItems = [...levelItems[currentLevel - 1], ...playerItems];
+        if(playerDeath){
+            playerDeathAnimation();
+            setTimeout(() => {
+                playerLocationReset();
+                setPlayerDeath(false);
+            }, 500);
+        }
+        else if(currentLevel > 0 && currentLevel <= allLevelData.length){
+            console.log("nextLevel", currentLevel);
+            allRenderedItems = [...allLevelData[currentLevel - 1].levelItems, ...playerItems];
+            levelTransitionData = {...allLevelData[currentLevel - 1].levelTransitions};
             if(frameIntervalObject){
                 clearInterval(frameIntervalObject);
             }
             if(startGame){
                 setTimeout(() => {
-                    frameIntervalObject = allFrames(allRenderedItems, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, setCurrentLevel, reloadLevelItems, setReloadLevelItems);
+                    frameIntervalObject = allFrames(frameIntervalObject, allRenderedItems, levelTransitionData, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, levelTransitionTracking, reloadLevelItems, setReloadLevelItems, playerDeathHandler);
                     playerControlsManager(playerControls, playerStates);
-                }, 1000);   
+                }, 200);
             }
         }
-        else if(currentLevel > levelItems.length){
+        else if(currentLevel > allLevelData.length){
             clearInterval(frameIntervalObject);
+            frameIntervalObject = null;
             setGameCompleted(true);
-        }
-        else if(playerDeath){
-            clearInterval(frameIntervalObject);
-            setPlayerDeath(false);
-            setReloadLevelItems(currentLevel);
         }
     },[currentLevel, playerDeath]);
 
@@ -461,11 +556,14 @@ export default function gravityroom(){
                                 XCordinate={item.XCordinate}
                                 YCordinate={item.YCordinate}
                                 XVelocity={item.XVelocity}
+                                YVelocity={item.YVelocity}
                                 gravity={item.gravity}
                                 isPlayer={item.isPlayer}
                                 srcImage={item.srcImage}
                                 hitboxRadiusRatio={item.hitboxRadiusRatio}
                                 showHitBox={environmentStates.showHitBox}
+                                modelAlignmentTop={item.modelAlignmentTop}
+                                modelAlignmentLeft={item.modelAlignmentLeft}
                             ></Ball>
                             :
                             (item.type == "box" ?
@@ -476,6 +574,8 @@ export default function gravityroom(){
                                     boxcolor={item.boxcolor}
                                     XCordinate={item.XCordinate}
                                     YCordinate={item.YCordinate}
+                                    XVelocity={item.XVelocity}
+                                    YVelocity={item.YVelocity}
                                     tilt = {item.tilt}
                                     gravity={item.gravity}
                                     isPlayer={item.isPlayer}
@@ -490,14 +590,14 @@ export default function gravityroom(){
                                 ""
                             )
                     ):""}
-                    {!startGame && !currentLevel ? <div className="p-2 rounded text-xl" style={{backgroundColor: "green", position: "fixed", top: "50%", left: "50%"}} onClick={() => {setStartGAme(true); setCurrentLevel(1);}}>
+                    {!startGame? <div className="p-2 rounded text-xl" style={{backgroundColor: "green", position: "fixed", top: "50%", left: "50%"}} onClick={() => {setStartGame(true); setCurrentLevel(1);}}>
                     Start
                     </div>:""}
                 </div>
                 <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
                     allRenderedItems.forEach((item) => {
                         if(item.isPlayer)
-                        console.log(item.ballcolor || item.boxcolor,item.type,"data", item,item.XCordinate, item.YVelocity, environmentStates.gravityAcceleration, currentLevel);
+                        console.log(item.ballcolor || item.boxcolor,item.type,"data", item,item.XCordinate, item.YVelocity, environmentStates.gravityAcceleration, currentLevel, lastLevel, frameIntervalObject);
                     })
                 }}>Print Data</div>
                 {coordinateCheckUpdate && coordinateCheck.map((coordinate, index) => {

@@ -7,7 +7,7 @@ const dashResetAngleRight = Number(process.env.NEXT_PUBLIC_PLAYER_DASHRESET_ANGL
 const DashResetCollisionAngleRange = [jumpResetAngleRight*(Pi/180),jumpResetAngleLeft*(Pi/180)];
 const JumpResetCollisionAngleRange = [dashResetAngleRight*(Pi/180),dashResetAngleLeft*(Pi/180)];
 
-export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime) {
+export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime, playerDeathHandler) {
     
     items.forEach((item1,index1) => {
         items.forEach((item2,index2) => {
@@ -34,6 +34,11 @@ export default function collision(items, playerStates, playerSettings, coordinat
                     let totalDistance = rootOfSquares([verticalDistance, horizontalDistance]);
                     
                     if( totalDistance < collisionDistance && !(item1.rigid && item2.rigid)) {
+
+                        if((item1.isPlayer || item2.isPlayer) && (item1.deathZone || item2.deathZone)){
+                            console.log("death");
+                            playerDeathHandler();
+                        }
 
                         let ballRadiusRatio = item1.ballradius/(collisionDistance);
 
@@ -115,6 +120,10 @@ export default function collision(items, playerStates, playerSettings, coordinat
                         let ActualDistanceFromBox = rootOfPositiveSquares(distanceFromEachSide);
                         let overlappingDistance = ball.ballradius - ActualDistanceFromBox;
                         if(ActualDistanceFromBox < ball.ballradius){
+                            if((item1.isPlayer || item2.isPlayer) && (item1.deathZone || item2.deathZone)){
+                                console.log("death");
+                                playerDeathHandler();
+                            }
                             let index = 0;
                             let collisionSide = 0;
                             let collisionSideDistance = 0;

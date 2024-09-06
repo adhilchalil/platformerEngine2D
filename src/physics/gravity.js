@@ -1,4 +1,4 @@
-export default function gravityAndVelocityDecay(items, playerControls, playerSettings, playerStates, environmentStates, currentTIme,  currentLevel, setCurrentLevel) {
+export default function gravityAndVelocityDecay(items, levelTransitionData, playerControls, playerSettings, playerStates, environmentStates, currentTIme,  currentLevel, setCurrentLevel) {
     let ItemWithGravityIndex = 0;
 
     const groundHeight = environmentStates.groundHeight;
@@ -58,21 +58,34 @@ export default function gravityAndVelocityDecay(items, playerControls, playerSet
             else if(posy >= environmentStates.roomHeight-itemDiameter) posy = environmentStates.roomHeight-itemDiameter;
             if(posx >= environmentStates.roomWidth-itemDiameter) posx = environmentStates.roomWidth-itemDiameter;
             else if(posx <= 0) posx = 0;
-    
         }
         else {
-            if(posy < 0) posy = environmentStates.roomHeight+itemDiameter;
-            else if(posy > environmentStates.roomHeight+itemDiameter) posy = 0;
+            if(posy <= (-itemDiameter + 2)  && vy < 0){
+                if(levelTransitionData.down){
+                    console.log("levelto",items,levelTransitionData);
+                    setCurrentLevel(levelTransitionData.down);
+                    posy = environmentStates.roomHeight - itemDiameter + 2;
+                }
+            }
+            else if(posy > (environmentStates.roomHeight) && vy > 0){
+                if(levelTransitionData.up){
+                    console.log("levelto",items,levelTransitionData);
+                    setCurrentLevel(levelTransitionData.up);
+                    posy = 0;
+                }
+            }
             if(posx > (environmentStates.roomWidth-itemDiameter - 2) && vx > 0) {
-                setCurrentLevel(currentLevel+1); posx = 0;
+                if(levelTransitionData.right){
+                    console.log("levelto",items,levelTransitionData);
+                    setCurrentLevel(levelTransitionData.right);
+                    posx = 0;
+                }
             }
             else if(posx <= 2 && vx < 0) {
-                if(currentLevel > 1){
-                    setCurrentLevel(currentLevel-1);
+                if(levelTransitionData.left){
+                    console.log("levelto",items,levelTransitionData)
+                    setCurrentLevel(levelTransitionData.left);
                     posx = environmentStates.roomWidth - itemDiameter - 2;
-                }
-                else{
-                    posx=0;
                 }
             }
         }
