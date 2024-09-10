@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 var frameIntervalObject = null;
 var allRenderedItems = [];
 var levelTransitionData = {};
+var levelProperties = {};
 
 const restrictedBoundary = Number(process.env.NEXT_PUBLIC_BOUNDARY_RESTRICTED)? true: false;
 const groundheight = Number(process.env.NEXT_PUBLIC_GROUNDHEIGHT);
@@ -86,6 +87,10 @@ const playerItems= [
 
 const allLevelData = [
     {
+        levelProperties: {
+            height: roomHeight*2,
+            width: roomWidth*1.2,
+        },
         levelTransitions: {
             up: null,
             down: null,
@@ -104,7 +109,7 @@ const allLevelData = [
                 {
                     type: "box",
                     height: groundheight,
-                    width: roomWidth,
+                    width: 1.2*roomWidth,
                     tilt: 0,
                     boxcolor: "#8B4513",
                     XCordinate: 0,
@@ -114,6 +119,26 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
+                },
+                {
+                    type: "box",
+                    height: 50,
+                    width: 50,
+                    tilt: 0,
+                    // boxcolor: "rgba(255, 255, 0, 0.2)",
+                    // boxcolor: "#777513",
+                    XCordinate: 1300,
+                    YCordinate: roomHeight,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/fire.gif",
+                    hitboxWidthRatio: 1.6,
+                    hitboxHeightRatio: 2,
+                    modelAlignmentTop: 20,
+                    deathZone: true
                 },
                 {
                     type: "box",
@@ -193,6 +218,10 @@ const allLevelData = [
             ]
     },
     {
+        levelProperties: {
+            height: roomHeight,
+            width: roomWidth,
+        },
         levelTransitions: {
             up: null,
             down: null,
@@ -303,6 +332,10 @@ const allLevelData = [
             ]
     },
     {
+        levelProperties: {
+            height: roomHeight,
+            width: roomWidth,
+        },
         levelTransitions: {
             up: 3,
             down: 3,
@@ -441,13 +474,13 @@ const allLevelData = [
 
 export default function gravityroom(){
     const [coordinateCheckUpdate, setCoordinateCheckUpdate] = useState(1);
-    const [currentLevel, setCurrentLevel] = useState(1);
+    const [currentLevel, setCurrentLevel] = useState(0);
     const [lastLevel, setLastLevel] = useState(0);
     const [reloadLevelItems,setReloadLevelItems] = useState(false);
     const [gameCompleted, setGameCompleted] = useState(false);
     const [playerDeath, setPlayerDeath] = useState(false);
     const [levelCompleted, setLevelCompleted] = useState(false);
-    const [startGame, setStartGame] = useState(true);
+    const [startGame, setStartGame] = useState(false);
 
     const levelTransitionTracking = (nextLevel) => {
         setLastLevel(currentLevel);
@@ -474,10 +507,10 @@ export default function gravityroom(){
 
         console.log("data", levelTransitionKey, respawnPoints);
 
-        playerItems[0].XCordinate = respawnPoints[levelTransitionKey][0]?respawnPoints[levelTransitionKey][0]: 0;
-        playerItems[0].YCordinate = respawnPoints[levelTransitionKey][1]?respawnPoints[levelTransitionKey][1]: 0;;
-        playerItems[0].XVelocity = respawnPoints[levelTransitionKey][2]?respawnPoints[levelTransitionKey][2]: 0;;
-        playerItems[0].YVelocity = respawnPoints[levelTransitionKey][3]?respawnPoints[levelTransitionKey][3]: 0;;
+        playerItems[0].XCordinate = respawnPoints[levelTransitionKey][0]? respawnPoints[levelTransitionKey][0] : 0;
+        playerItems[0].YCordinate = respawnPoints[levelTransitionKey][1]? respawnPoints[levelTransitionKey][1] : 0;
+        playerItems[0].XVelocity = respawnPoints[levelTransitionKey][2]? respawnPoints[levelTransitionKey][2] : 0;
+        playerItems[0].YVelocity = respawnPoints[levelTransitionKey][3]? respawnPoints[levelTransitionKey][3] : 0;
        
     }
 
@@ -508,15 +541,26 @@ export default function gravityroom(){
             }, 500);
         }
         else if(currentLevel > 0 && currentLevel <= allLevelData.length){
-            console.log("nextLevel", currentLevel);
             allRenderedItems = [...allLevelData[currentLevel - 1].levelItems, ...playerItems];
             levelTransitionData = {...allLevelData[currentLevel - 1].levelTransitions};
+            let upIndex = allLevelData[currentLevel - 1].levelTransitions?.up;
+            let rightIndex = allLevelData[currentLevel - 1].levelTransitions?.right;
+            let downIndex = allLevelData[currentLevel - 1].levelTransitions?.down;
+            let leftIndex = allLevelData[currentLevel - 1].levelTransitions?.left;
+            console.log(upIndex, rightIndex, downIndex, leftIndex);
+            levelProperties = {...allLevelData[currentLevel - 1].levelProperties, 
+                up: upIndex? allLevelData[upIndex-1].levelProperties: {},
+                right: rightIndex? allLevelData[rightIndex-1].levelProperties: {},
+                left: leftIndex? allLevelData[leftIndex-1].levelProperties: {},
+                down: downIndex? allLevelData[downIndex-1].levelProperties: {}
+            };
             if(frameIntervalObject){
                 clearInterval(frameIntervalObject);
             }
             if(startGame){
                 setTimeout(() => {
-                    frameIntervalObject = allFrames(frameIntervalObject, allRenderedItems, levelTransitionData, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, levelTransitionTracking, reloadLevelItems, setReloadLevelItems, playerDeathHandler);
+                    console.log("levelProperties", levelProperties);
+                    frameIntervalObject = allFrames(frameIntervalObject, allRenderedItems, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, levelTransitionTracking, reloadLevelItems, setReloadLevelItems, playerDeathHandler);
                     playerControlsManager(playerControls, playerStates);
                 }, 200);
             }
@@ -530,21 +574,21 @@ export default function gravityroom(){
 
     return ( 
         <>
-            <div className="gravitycontainer fixed"
+            <div className="gravitycontainer cameraFrame fixed"
                 style={{
                     height: roomHeight + "px",
-                    width : roomWidth + "px",
+                    width: roomWidth + "px",
+                    overflow: "scroll"
                 }}
             >
-                <div className="gravitycontainer absolute" style={{
-                        backgroundColor: environmentDesigns.backgroundColor? environmentDesigns.backgroundColor:"grey",
+                <div className="absolute" style={{
+                        backgroundColor: environmentDesigns.backgroundColor? environmentDesigns.backgroundColor: "grey",
                         backgroundImage: environmentDesigns.backgroundImage? `url('${environmentDesigns.backgroundImage}')`: "none",
                         backgroundRepeat: environmentDesigns.backgroundRepeat? environmentDesigns.backgroundRepeat: "no-repeat",
                         backgroundAttachment: environmentDesigns.backgroundAttachment? environmentDesigns.backgroundAttachment: "fixed",
                         backgroundSize: environmentDesigns.backgroundSize? environmentDesigns.backgroundSize: "cover",
-                        height: roomHeight + "px",
-                        width : roomWidth + "px",
-                        bottom: "0px"
+                        height: levelProperties.height + "px",
+                        width : levelProperties.width + "px",
                     }}
                 >
                     {startGame && currentLevel && !playerDeath ? allRenderedItems.map((item,index) => 

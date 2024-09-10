@@ -1,4 +1,4 @@
-export default function gravityAndVelocityDecay(items, levelTransitionData, playerControls, playerSettings, playerStates, environmentStates, currentTIme,  currentLevel, setCurrentLevel) {
+export default function gravityAndVelocityDecay(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime,  currentLevel, setCurrentLevel) {
     let ItemWithGravityIndex = 0;
 
     const groundHeight = environmentStates.groundHeight;
@@ -8,14 +8,14 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, play
         let posx = item.XCordinate;
         let posy = item.YCordinate;
         let itemDiameter = item.ballradius * 2;
-        let rightWall = environmentStates.roomWidth-itemDiameter;
-        let topWall = environmentStates.roomHeight-itemDiameter;
+        let rightWall = levelProperties.width - itemDiameter;
+        let topWall = levelProperties.height - itemDiameter;
        
         let elasticity = item.elasticity;
         let XVelocityDecay = playerSettings.XVelocityDecay;
         let gravityAcceleration = environmentStates.gravityAcceleration;
         
-        if(!item.gravity){
+        if(!item.gravity || currentTime < playerStates.lastDashTime){
             gravityAcceleration = 0;
         }
         if(item.rigid) {
@@ -55,8 +55,8 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, play
             }
 
             if(posy <= groundHeight) posy = groundHeight;
-            else if(posy >= environmentStates.roomHeight-itemDiameter) posy = environmentStates.roomHeight-itemDiameter;
-            if(posx >= environmentStates.roomWidth-itemDiameter) posx = environmentStates.roomWidth-itemDiameter;
+            else if(posy >= levelProperties.height-itemDiameter) posy = levelProperties.height-itemDiameter;
+            if(posx >= levelProperties.width - itemDiameter) posx = levelProperties.width - itemDiameter;
             else if(posx <= 0) posx = 0;
         }
         else {
@@ -64,17 +64,17 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, play
                 if(levelTransitionData.down){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.down);
-                    posy = environmentStates.roomHeight - itemDiameter + 2;
+                    posy = (levelProperties.down.height? levelProperties.down.height: environmentStates.roomHeight) - itemDiameter + 2;
                 }
             }
-            else if(posy > (environmentStates.roomHeight) && vy > 0){
+            else if(posy > (levelProperties.height) && vy > 0){
                 if(levelTransitionData.up){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.up);
                     posy = 0;
                 }
             }
-            if(posx > (environmentStates.roomWidth-itemDiameter - 2) && vx > 0) {
+            if(posx > (levelProperties.width - itemDiameter - 2) && vx > 0) {
                 if(levelTransitionData.right){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.right);
@@ -83,9 +83,9 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, play
             }
             else if(posx <= 2 && vx < 0) {
                 if(levelTransitionData.left){
-                    console.log("levelto",items,levelTransitionData)
+                    console.log("levelto",items,levelTransitionData, levelProperties)
                     setCurrentLevel(levelTransitionData.left);
-                    posx = environmentStates.roomWidth - itemDiameter - 2;
+                    posx = (levelProperties.left.width? levelProperties.left.width: environmentStates.roomWidth)   - itemDiameter - 2;
                 }
             }
         }

@@ -1,7 +1,7 @@
 export default function box({height, width, boxcolor, XCordinate, YCordinate, XVelocity, YVelocity, gravity, isPlayer, tilt, srcImage, hitboxWidthRatio, hitboxHeightRatio, showHitBox, modelAlignmentTop, modelAlignmentLeft}){
     return ( 
         <div
-            className={"fixed domItem overflow-visible" + (gravity? " gravity":"") + (isPlayer? " playercharacter":"")}
+            className={"absolute domItem overflow-visible" + (gravity? " gravity":"") + (isPlayer? " playercharacter":"")}
             style={{border: (showHitBox ? "1px" : "0px") + " solid black", borderRadius: "2%", transformOrigin: "bottom left", transform: `rotate(${-tilt}deg)` ,backgroundColor: boxcolor || showHitBox? (boxcolor || "rgba(255, 0, 0, 0.3)") : "rgba(255, 0, 0, 0)", width: width + "px", height: height + "px", bottom: YCordinate+"px", left: XCordinate+"px"}}
         >
             {(isPlayer || srcImage) && 
