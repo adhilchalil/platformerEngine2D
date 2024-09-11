@@ -1,6 +1,6 @@
 import { playerMovement } from "@/itemControl/playermovement";
 import collision from "./collision";
-import gravityAndVelocityDecay from "./gravity";
+import gravityAndVelocityDecayAndLevelTransitions from "./gravity";
 import { playerAnimation } from "@/itemControl/playerAnimation";
 import {cameraAndTransitions} from "@/itemControl/cameraAndTransitions";
 
@@ -17,7 +17,7 @@ export default function allFrames(frameIntervalObject, items, levelTransitionDat
 
     function itemsUpdate(){
         currentTime.setMilliseconds(currentTime.getMilliseconds() + environmentStates.timeInterval);
-        gravityAndVelocityDecay(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime, currentLevel, setCurrentLevel);
+        gravityAndVelocityDecayAndLevelTransitions(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime, currentLevel, setCurrentLevel);
         playerMovement(items, playerItemData, playerControls, playerSettings, playerStates, environmentStates.groundHeight, DOMplayerCharacter[0], playerCharacterImage[0], environmentStates.timeInterval, currentTime);
         collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime, playerDeathHandler);
         cameraAndTransitions(levelProperties, playerItemData, cameraFrame, environmentStates.roomWidth, environmentStates.roomHeight);

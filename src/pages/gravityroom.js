@@ -74,7 +74,7 @@ const playerItems= [
         ballradius: 60,
         // ballcolor: "rgba(255, 0, 0, 0.2)",
         XCordinate: 100,
-        YCordinate: 100,
+        YCordinate: 300,
         XVelocity: 2,
         YVelocity: 0,
         gravity: true,
@@ -90,6 +90,10 @@ const allLevelData = [
         levelProperties: {
             height: roomHeight*2,
             width: roomWidth*1.2,
+            offsetRight: 0,
+            offsetLeft: 0,
+            offsetUp: 0,
+            offsetDown: 0,
         },
         levelTransitions: {
             up: null,

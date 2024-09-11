@@ -1,42 +1,67 @@
 export function cameraAndTransitions(levelProperties, playerItem, cameraFrame, roomWidth, roomHeight) {
     let XCameraPosition = cameraFrame.scrollLeft;
     let YCameraPosition = cameraFrame.scrollTop;
+    let expectedXCameraPosition = XCameraPosition;
+    let expectedYCameraPosition = YCameraPosition;
+    let playerPositionRatioX = 0.3;
+    let inversePlayerPositionRatioX = 1 - playerPositionRatioX;
+    let playerPositionRatioY = 0.5;
+    let inversePlayerPositionRatioY = 1 - playerPositionRatioY;
 
     /*Horizontal Direction Camera Movement Control*/
     if(levelProperties.width > roomWidth){
-        if(playerItem.XCordinate < 0.2*levelProperties.width && XCameraPosition > 0){
-            console.log('uhm')
-            cameraFrame.scroll({left: 0, behavior: "instant"});
+        if(playerItem.XCordinate < playerPositionRatioX*roomWidth && XCameraPosition > 0){
+            expectedXCameraPosition = 0;
         }
-        else if(playerItem.XCordinate > 0.8*levelProperties.width && XCameraPosition < levelProperties.width - roomWidth){
-            cameraFrame.scroll({left: levelProperties.width - roomWidth, behavior: "instant"});
+        else if(playerItem.XCordinate > (levelProperties.width - playerPositionRatioX*roomWidth) && XCameraPosition < levelProperties.width - roomWidth){
+            expectedXCameraPosition = levelProperties.width - roomWidth;
         }
-        else if(playerItem.XCordinate > 0.2*levelProperties.width && playerItem.XCordinate < 0.8*levelProperties.width){
-            // if(playerItem.XVelocity > 0.2){
-                cameraFrame.scroll({left: playerItem.XCordinate - 0.2*levelProperties.width});
-            // }
-            // else if(playerItem.XVelocity < -0.2) {
-            //     cameraFrame.scroll({left: playerItem.XCordinate - 0.8*levelProperties.width});
-            // }
+        else if(playerItem.XCordinate > playerPositionRatioX*roomWidth && playerItem.XCordinate < (levelProperties.width - playerPositionRatioX*roomWidth)){
+            if(playerItem.XVelocity > 0.1) {
+                expectedXCameraPosition = playerItem.XCordinate - playerPositionRatioX*roomWidth;
+            }
+            else if(playerItem.XVelocity < -0.1) {
+                expectedXCameraPosition =  playerItem.XCordinate - inversePlayerPositionRatioX*roomWidth;
+            }
         }
     }
 
 
     /*Vertical Direction Camera Movement Control*/
     if(levelProperties.height > roomHeight){
-        if(playerItem.YCordinate < 0.2*levelProperties.height && YCameraPosition < (levelProperties.height - roomHeight)){
-            cameraFrame.scroll({top: levelProperties.height - roomHeight, behavior: "instant"});
+        if(playerItem.YCordinate < playerPositionRatioY*roomHeight && YCameraPosition < (levelProperties.height - roomHeight)){
+            expectedYCameraPosition = levelProperties.height - roomHeight;
         }
-        else if(playerItem.YCordinate > 0.8*levelProperties.height && YCameraPosition > 0){
-            cameraFrame.scroll({top: 0, behavior: "instant"});
+        else if(playerItem.YCordinate > (levelProperties.height - playerPositionRatioY*roomHeight) && YCameraPosition > 0){
+            expectedYCameraPosition = 0;
         }
-        else if(playerItem.YCordinate > 0.2*levelProperties.height && playerItem.YCordinate < 0.8*levelProperties.height){
-            // if(playerItem.YVelocity > 0.2){
-                cameraFrame.scroll({top: 0.8*levelProperties.height - playerItem.YCordinate});
-            // }
-            // else if(playerItem.XVelocity < -0.2) {
-            //     cameraFrame.scroll({top: playerItem.YCordinate - 0.2*levelProperties.height});
-            // }
+        else if(playerItem.YCordinate > playerPositionRatioY*roomHeight && playerItem.YCordinate < (levelProperties.height - playerPositionRatioY*roomHeight)){
+            if(playerItem.YVelocity > 0.1){
+                expectedYCameraPosition = (levelProperties.height - playerItem.YCordinate) - inversePlayerPositionRatioY*roomHeight;
+            }
+            else if(playerItem.YVelocity < -0.1) {
+                expectedYCameraPosition = (levelProperties.height - playerItem.YCordinate) - playerPositionRatioY*roomHeight;
+            }
         }
+    }
+
+    springArmCamera(cameraFrame, XCameraPosition, YCameraPosition, expectedXCameraPosition, expectedYCameraPosition);
+}
+
+
+//Camera that tries to catchup to the position expected. 
+function springArmCamera(cameraFrame, XCameraPosition, YCameraPosition, expectedXCameraPosition, expectedYCameraPosition){
+
+    let springArmXAcceleration = 0.05; //velocity per pixel per frame. control at env or levelProperties later
+    let springArmYAcceleration = 0.1;
+
+    if(expectedXCameraPosition != XCameraPosition || expectedYCameraPosition != YCameraPosition){
+        let XCameraSpeed = (expectedXCameraPosition - XCameraPosition)*springArmXAcceleration;
+        let YCameraSpeed = (expectedYCameraPosition - YCameraPosition)*springArmYAcceleration;
+        cameraFrame.scroll({
+            left:  XCameraPosition + XCameraSpeed,
+            top: YCameraPosition + YCameraSpeed,
+            behavior: "instant"
+        })
     }
 }

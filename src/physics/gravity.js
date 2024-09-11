@@ -1,4 +1,4 @@
-export default function gravityAndVelocityDecay(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime,  currentLevel, setCurrentLevel) {
+export default function gravityAndVelocityDecayAndLevelTransitions(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime,  currentLevel, setCurrentLevel) {
     let ItemWithGravityIndex = 0;
 
     const groundHeight = environmentStates.groundHeight;
@@ -64,6 +64,9 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, leve
                 if(levelTransitionData.down){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.down);
+                    let totalOffset = (levelProperties.offsetDown? levelProperties.offsetDown : 0) - (levelProperties.down?.offsetUp? levelProperties.down.offsetUp : 0);
+                    console.log("leveloffset", totalOffset, levelProperties);
+                    posx = posx - totalOffset;
                     posy = (levelProperties.down.height? levelProperties.down.height: environmentStates.roomHeight) - itemDiameter + 2;
                 }
             }
@@ -71,6 +74,9 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, leve
                 if(levelTransitionData.up){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.up);
+                    let totalOffset = (levelProperties.offsetUp? levelProperties.offsetUp : 0) - (levelProperties.up?.offsetDown? levelProperties.up.offsetDown : 0);
+                    console.log("leveloffset", totalOffset, levelProperties);
+                    posx = posx - totalOffset;
                     posy = 0;
                 }
             }
@@ -78,14 +84,20 @@ export default function gravityAndVelocityDecay(items, levelTransitionData, leve
                 if(levelTransitionData.right){
                     console.log("levelto",items,levelTransitionData);
                     setCurrentLevel(levelTransitionData.right);
+                    let totalOffset = (levelProperties.offsetRight? levelProperties.offsetRight : 0) - (levelProperties.right?.offsetLeft? levelProperties.right.offsetLeft : 0);
+                    console.log("leveloffset", totalOffset, levelProperties);
                     posx = 0;
+                    posy = posy - totalOffset;
                 }
             }
             else if(posx <= 2 && vx < 0) {
                 if(levelTransitionData.left){
                     console.log("levelto",items,levelTransitionData, levelProperties)
                     setCurrentLevel(levelTransitionData.left);
+                    let totalOffset = (levelProperties.offsetLeft? levelProperties.offsetLeft : 0) - (levelProperties.left?.offsetRight? levelProperties.left.offsetRight : 0);
+                    console.log("leveloffset", totalOffset, levelProperties);
                     posx = (levelProperties.left.width? levelProperties.left.width: environmentStates.roomWidth)   - itemDiameter - 2;
+                    posy = posy - totalOffset;
                 }
             }
         }
