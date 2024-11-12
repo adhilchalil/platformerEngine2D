@@ -476,7 +476,7 @@ const allLevelData = [
     }
     ];
 
-export default function gravityroom(){
+export default function Gravityroom(){
     const [coordinateCheckUpdate, setCoordinateCheckUpdate] = useState(1);
     const [currentLevel, setCurrentLevel] = useState(0);
     const [lastLevel, setLastLevel] = useState(0);
