@@ -1,4 +1,4 @@
-export function cameraAndTransitions(levelProperties, playerItem, cameraFrame, roomWidth, roomHeight) {
+export function cameraAndTransitions(initialFrame, levelProperties, playerItem, cameraFrame, roomWidth, roomHeight) {
     let XCameraPosition = cameraFrame.scrollLeft;
     let YCameraPosition = cameraFrame.scrollTop;
     let expectedXCameraPosition = XCameraPosition;
@@ -30,7 +30,7 @@ export function cameraAndTransitions(levelProperties, playerItem, cameraFrame, r
     /*Vertical Direction Camera Movement Control*/
     if(levelProperties.height > roomHeight){
         if(playerItem.YCordinate < playerPositionRatioY*roomHeight && YCameraPosition < (levelProperties.height - roomHeight)){
-            expectedYCameraPosition = levelProperties.height - roomHeight;
+            expectedYCameraPosition = levelProperties.height - (roomHeight + 5);
         }
         else if(playerItem.YCordinate > (levelProperties.height - playerPositionRatioY*roomHeight) && YCameraPosition > 0){
             expectedYCameraPosition = 0;
@@ -45,7 +45,14 @@ export function cameraAndTransitions(levelProperties, playerItem, cameraFrame, r
         }
     }
 
-    springArmCamera(cameraFrame, XCameraPosition, YCameraPosition, expectedXCameraPosition, expectedYCameraPosition);
+    if(initialFrame) {
+        cameraFrame.scroll({
+            left:  expectedXCameraPosition,
+            top: expectedYCameraPosition,
+            behavior: "instant"
+        });
+    }
+    else springArmCamera(cameraFrame, XCameraPosition, YCameraPosition, expectedXCameraPosition, expectedYCameraPosition);
 }
 
 
@@ -62,6 +69,6 @@ function springArmCamera(cameraFrame, XCameraPosition, YCameraPosition, expected
             left:  XCameraPosition + XCameraSpeed,
             top: YCameraPosition + YCameraSpeed,
             behavior: "instant"
-        })
+        });
     }
 }

@@ -578,10 +578,13 @@ export default function gravityroom(){
 
     return ( 
         <>
-            <div className="gravitycontainer cameraFrame fixed"
+            <div className="gravitycontainer cameraFrame fixed mx-auto rounded-md"
                 style={{
                     height: roomHeight + "px",
                     width: roomWidth + "px",
+                    left: "50%",
+                    top: "50%",
+                    transform: "translate(-50%, -50%)",
                     overflow: "scroll"
                 }}
             >
@@ -642,16 +645,16 @@ export default function gravityroom(){
                     Start
                     </div>:""}
                 </div>
-                <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
+                {coordinateCheckUpdate && coordinateCheck.map((coordinate, index) => {
+                    return <div className="absolute rounded-full" key={index} style={{backgroundColor: coordinate[2] || "pink", width: "10px", height: "10px", bottom: coordinate[1]-5 + "px", left: coordinate[0]-5 + "px" }}></div>
+                })}
+            </div>
+            <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
                     allRenderedItems.forEach((item) => {
                         if(item.isPlayer)
                         console.log(item.ballcolor || item.boxcolor,item.type,"data", item,item.XCordinate, item.YVelocity, environmentStates.gravityAcceleration, currentLevel, lastLevel, frameIntervalObject);
                     })
                 }}>Print Data</div>
-                {coordinateCheckUpdate && coordinateCheck.map((coordinate, index) => {
-                    return <div className="absolute rounded-full" key={index} style={{backgroundColor: coordinate[2] || "pink", width: "10px", height: "10px", bottom: coordinate[1]-5 + "px", left: coordinate[0]-5 + "px" }}></div>
-                })}
-            </div>
         </>
     );
 }

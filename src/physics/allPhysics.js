@@ -14,13 +14,14 @@ export default function allFrames(frameIntervalObject, items, levelTransitionDat
     let playerIndex = items.findIndex((item) => item.isPlayer);
     let playerItemData = items[playerIndex];
     let currentTime = new Date();
+    let initialFrame = true;
 
     function itemsUpdate(){
         currentTime.setMilliseconds(currentTime.getMilliseconds() + environmentStates.timeInterval);
         gravityAndVelocityDecayAndLevelTransitions(items, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, currentTime, currentLevel, setCurrentLevel);
         playerMovement(items, playerItemData, playerControls, playerSettings, playerStates, environmentStates.groundHeight, DOMplayerCharacter[0], playerCharacterImage[0], environmentStates.timeInterval, currentTime);
         collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime, playerDeathHandler);
-        cameraAndTransitions(levelProperties, playerItemData, cameraFrame, environmentStates.roomWidth, environmentStates.roomHeight);
+        cameraAndTransitions(initialFrame, levelProperties, playerItemData, cameraFrame, environmentStates.roomWidth, environmentStates.roomHeight);
         items.forEach((item, index) => {
             DomItems[index].style.left = item.XCordinate + "px";
             DomItems[index].style.bottom = item.YCordinate + "px";
@@ -28,6 +29,7 @@ export default function allFrames(frameIntervalObject, items, levelTransitionDat
                 playerAnimation(item, playerCharacterImage[0], playerSettings, currentTime, walkframeCount);
             }
         });
+        initialFrame = false;
     }
 
     if(!frameIntervalObject || !reloadLevelItems) {
