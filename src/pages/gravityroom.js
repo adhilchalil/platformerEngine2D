@@ -71,7 +71,7 @@ const playerStates = {
 const playerItems= [
     {
         type: "ball",
-        ballradius: 60,
+        ballradius: 40,
         // ballcolor: "rgba(255, 0, 0, 0.2)",
         XCordinate: 100,
         YCordinate: 300,
@@ -81,9 +81,17 @@ const playerItems= [
         elasticity: 0,
         isPlayer: true,
         rigid: false,
-        srcImage: "/walk_cycle1.png",
-        hitboxRadiusRatio: 1
+        srcImage: "/slime_animate2.gif",
+        modelAlignmentTop: 52,
+        modelAlignmentLeft: 43,
+        hitboxRadiusRatio: 1.4
     }];
+
+const playerAnimationFormat = playerItems[0].srcImage?.split(".").pop();
+
+playerItems[0].playerAnimationFormat = playerAnimationFormat;
+
+console.log("playeranimation format", playerItems[0]);
 
 const allLevelData = [
     {
@@ -116,6 +124,7 @@ const allLevelData = [
                     width: 1.2*roomWidth,
                     tilt: 0,
                     boxcolor: "#8B4513",
+                    showBorder: true,
                     XCordinate: 0,
                     YCordinate: 0,
                     XVelocity: 0,
@@ -139,9 +148,10 @@ const allLevelData = [
                     elasticity: 0,
                     rigid: true,
                     srcImage: "/fire.gif",
-                    hitboxWidthRatio: 1.6,
-                    hitboxHeightRatio: 2,
+                    hitboxWidthRatio: 1.8,
+                    hitboxHeightRatio: 2.1,
                     modelAlignmentTop: 20,
+                    modelAlignmentLeft: 47,
                     deathZone: true
                 },
                 {
@@ -152,16 +162,38 @@ const allLevelData = [
                     // boxcolor: "rgba(255, 255, 0, 0.2)",
                     // boxcolor: "#777513",
                     XCordinate: 1300,
-                    YCordinate: 100,
+                    YCordinate: 50,
                     XVelocity: 0,
                     YVelocity: 0,
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
                     srcImage: "/fire.gif",
-                    hitboxWidthRatio: 1.6,
-                    hitboxHeightRatio: 2,
+                    hitboxWidthRatio: 1.8,
+                    hitboxHeightRatio: 2.1,
                     modelAlignmentTop: 20,
+                    modelAlignmentLeft: 47,
+                    deathZone: true
+                },
+                {
+                    type: "box",
+                    height: 50,
+                    width: 50,
+                    tilt: 0,
+                    // boxcolor: "rgba(255, 255, 0, 0.2)",
+                    // boxcolor: "#777513",
+                    XCordinate: 1350,
+                    YCordinate: 50,
+                    XVelocity: 0,
+                    YVelocity: 0,
+                    gravity: false,
+                    elasticity: 0,
+                    rigid: true,
+                    srcImage: "/fire.gif",
+                    hitboxWidthRatio: 1.8,
+                    hitboxHeightRatio: 2.1,
+                    modelAlignmentTop: 20,
+                    modelAlignmentLeft: 47,
                     deathZone: true
                 },
                 {
@@ -225,6 +257,7 @@ const allLevelData = [
         levelProperties: {
             height: roomHeight,
             width: roomWidth,
+            night: true,
         },
         levelTransitions: {
             up: null,
@@ -240,6 +273,7 @@ const allLevelData = [
                     width: roomWidth,
                     tilt: 0,
                     boxcolor: "#8B4513",
+                    showBorder: true,
                     XCordinate: 0,
                     YCordinate: 0,
                     XVelocity: 0,
@@ -354,6 +388,7 @@ const allLevelData = [
                 width: 0.5*roomWidth,
                 tilt: 0,
                 boxcolor: "#8B4513",
+                showBorder: true,
                 XCordinate: 0,
                 YCordinate: 0,
                 XVelocity: 0,
@@ -368,6 +403,7 @@ const allLevelData = [
                 width: 0.3*roomWidth,
                 tilt: 0,
                 boxcolor: "#8B4513",
+                showBorder: true,
                 XCordinate: 0.7*roomWidth,
                 YCordinate: 0,
                 XVelocity: 0,
@@ -382,6 +418,7 @@ const allLevelData = [
                 width: 0.5*roomWidth,
                 tilt: 0,
                 boxcolor: "#8B4513",
+                showBorder: true,
                 XCordinate: 0,
                 YCordinate: roomHeight - groundheight,
                 XVelocity: 0,
@@ -396,6 +433,7 @@ const allLevelData = [
                 width: 0.3*roomWidth,
                 tilt: 0,
                 boxcolor: "#8B4513",
+                showBorder: true,
                 XCordinate: 0.7*roomWidth,
                 YCordinate: roomHeight - groundheight,
                 XVelocity: 0,
@@ -562,9 +600,24 @@ export default function Gravityroom(){
                 clearInterval(frameIntervalObject);
             }
             if(startGame){
+                let DomItems = document.getElementsByClassName("domItem");
+                let DOMplayerCharacter = document.getElementsByClassName("playercharacter");
+                let lightingElement = document.getElementById("lightingContainer");
+                let playerCharacterImage = document.getElementsByClassName("imageFrames");
+                let cameraFrame = document.getElementsByClassName("cameraFrame")[0];
+                let DOMElements = {
+                    lightingElement: lightingElement,
+                    DomItems: DomItems,
+                    DOMplayerCharacter: DOMplayerCharacter,
+                    playerCharacterImage: playerCharacterImage,
+                    cameraFrame: cameraFrame
+                }
+
+                //presetting light radius to initialize root variable.
+                document.documentElement.style.setProperty('--lightRadius', 0 + "px");
+
                 setTimeout(() => {
-                    console.log("levelProperties", levelProperties);
-                    frameIntervalObject = allFrames(frameIntervalObject, allRenderedItems, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, levelTransitionTracking, reloadLevelItems, setReloadLevelItems, playerDeathHandler);
+                    frameIntervalObject = allFrames(frameIntervalObject, allRenderedItems, levelTransitionData, levelProperties, playerControls, playerSettings, playerStates, environmentStates, coordinateCheck, currentLevel, levelTransitionTracking, reloadLevelItems, setReloadLevelItems, playerDeathHandler, DOMElements);
                     playerControlsManager(playerControls, playerStates);
                 }, 200);
             }
@@ -574,6 +627,7 @@ export default function Gravityroom(){
             frameIntervalObject = null;
             setGameCompleted(true);
         }
+        
     },[currentLevel, playerDeath]);
 
     return ( 
@@ -588,7 +642,7 @@ export default function Gravityroom(){
                     overflow: "scroll"
                 }}
             >
-                <div className="absolute" style={{
+                <div className={`${startGame && levelProperties.night?"lightingContainer": ""} absolute`} style={{
                         backgroundColor: environmentDesigns.backgroundColor? environmentDesigns.backgroundColor: "grey",
                         backgroundImage: environmentDesigns.backgroundImage? `url('${environmentDesigns.backgroundImage}')`: "none",
                         backgroundRepeat: environmentDesigns.backgroundRepeat? environmentDesigns.backgroundRepeat: "no-repeat",
@@ -613,6 +667,7 @@ export default function Gravityroom(){
                                 srcImage={item.srcImage}
                                 hitboxRadiusRatio={item.hitboxRadiusRatio}
                                 showHitBox={environmentStates.showHitBox}
+                                showBorder={item.showBorder}
                                 modelAlignmentTop={item.modelAlignmentTop}
                                 modelAlignmentLeft={item.modelAlignmentLeft}
                             ></Ball>
@@ -634,6 +689,7 @@ export default function Gravityroom(){
                                     hitboxWidthRatio={item.hitboxWidthRatio}
                                     hitboxHeightRatio={item.hitboxHeightRatio}
                                     showHitBox={environmentStates.showHitBox}
+                                    showBorder={item.showBorder}
                                     modelAlignmentTop={item.modelAlignmentTop}
                                     modelAlignmentLeft={item.modelAlignmentLeft}
                                 ></Box>
@@ -641,7 +697,7 @@ export default function Gravityroom(){
                                 ""
                             )
                     ):""}
-                    {!startGame? <div className="p-2 rounded text-xl" style={{backgroundColor: "green", position: "fixed", top: "50%", left: "50%"}} onClick={() => {setStartGame(true); setCurrentLevel(1);}}>
+                    {!startGame? <div className="px-5 py-2 button-34 rounded text-4xl text-bold font-bold" style={{ position: "fixed", top: "50%", left: "50%"}} onClick={() => {setStartGame(true); setCurrentLevel(1);}}>
                     Start
                     </div>:""}
                 </div>
@@ -649,12 +705,12 @@ export default function Gravityroom(){
                     return <div className="absolute rounded-full" key={index} style={{backgroundColor: coordinate[2] || "pink", width: "10px", height: "10px", bottom: coordinate[1]-5 + "px", left: coordinate[0]-5 + "px" }}></div>
                 })}
             </div>
-            <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
+            {/* <div className="fixed p-1 rounded cursor-pointer" style={{backgroundColor: "red", bottom: "10px", left: "1800px" }} onClick={() => {
                     allRenderedItems.forEach((item) => {
                         if(item.isPlayer)
                         console.log(item.ballcolor || item.boxcolor,item.type,"data", item,item.XCordinate, item.YVelocity, environmentStates.gravityAcceleration, currentLevel, lastLevel, frameIntervalObject);
                     })
-                }}>Print Data</div>
+                }}>Print Data</div> */}
         </>
     );
 }

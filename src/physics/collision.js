@@ -50,11 +50,11 @@ export default function collision(items, playerStates, playerSettings, coordinat
 
                         overLapCorrection(item1, item2, overlappingDistance, horizontalDistance, verticalDistance, totalDistance, ballRadiusRatio);
 
-                        if(item1.isPlayer) {
+                        if(item1.isPlayer && !item2.deathZone) {
                             playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
                         }
                         
-                        else if(item2.isPlayer) {
+                        else if(item2.isPlayer && !item1.deathZone) {
                             playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
                         }
 
@@ -150,10 +150,10 @@ export default function collision(items, playerStates, playerSettings, coordinat
 
                             let avgElasticity = ((item1.elasticity == undefined? 1 : item1.elasticity) + (item2.elasticity == undefined? 1 : item2.elasticity))/2;
 
-                            if(ball.isPlayer){
+                            if(ball.isPlayer && !box.deathZone){
                                 playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
                             }
-                            else if(box.isPlayer){
+                            else if(box.isPlayer && !ball.deathZone){
                                 playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
                             }
                             
