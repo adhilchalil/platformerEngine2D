@@ -1,32 +1,29 @@
-export function playerMovement(items, playerItemData, playerControls, playerSettings, playerStates, groundHeight, DOMplayerCharacter, playerCharacterImage, timeInterval, currentTime) {
+export function playerMovement(items, playerItemData, playerControls, playerSettings, playerStates, environmentStates, DOMplayerCharacter, playerCharacterImage, timeInterval, currentTime) {
 
     let maxXVelocity = playerSettings.maxXVelocity;
     let playerAcceleration = playerSettings.playerAcceleration;
     let jumpVelocity = playerSettings.jumpVelocity;
     let dashVelocity = playerSettings.dashVelocity;
+    let gravityAcceleration = environmentStates.gravityAcceleration;
 
     let currentXVelocity = playerItemData.XVelocity;
-    let jumpAllowedDeadline = new Date(playerStates.lastJumpableCollisionTime.getTime() + playerSettings.minJumpDeadline*(timeInterval/10));
+
+    let jumpAllowedDeadline = new Date(playerStates.lastJumpableCollisionTime.getTime() + (playerSettings.minJumpDeadline*timeInterval));
 
     if(jumpAllowedDeadline < currentTime){
       playerStates.jumpAvailable = false;
-      playerStates.lastRunnableCollisionAngle = Math.PI/2;
-    }
-
-    if(playerItemData.YCordinate < groundHeight + 5){
-      playerStates.dashCount = playerSettings.maxDashCount;
-      playerStates.jumpAvailable = true;
+      playerStates.lastjumpableCollisionAngle = Math.PI/2;
     }
 
     //Jump movement
-    if(playerControls.Space && (playerStates.jumpAvailable || playerItemData.YCordinate < (groundHeight + 5))){
-        playerItemData.YCordinate = playerItemData.YCordinate + 1;
-        playerItemData.YVelocity = (playerControls.ArrowDown? 1.2 : 1) * jumpVelocity;
-        playerStates.jumpAvailable = false;
+    if(playerControls.Space && (playerStates.jumpAvailable)){
+      playerStates.jumpAvailable = false;
+      playerItemData.YCordinate = playerItemData.YCordinate + 1;
+      playerItemData.YVelocity = (playerControls.ArrowDown? 1.2 : 1) * jumpVelocity;
     }
     if(playerItemData.type == "ball"
       && (DOMplayerCharacter.offsetHeight <= 2*playerItemData.ballradius || DOMplayerCharacter.offsetWidth <= 1.7*playerItemData.ballradius)
-      && currentTime >= playerStates.lastDashTime){
+      && currentTime >= playerStates.nextDashTime){
       DOMplayerCharacter.style.height = playerItemData.ballradius*2 + "px";
       DOMplayerCharacter.style.width = playerItemData.ballradius*2 + "px";
       playerCharacterImage.style.height = playerItemData.ballradius*2 + "px";
@@ -34,11 +31,11 @@ export function playerMovement(items, playerItemData, playerControls, playerSett
     }
 
     //dash movement. shift + directional
-    if(playerControls.Shift && playerStates.dashCount > 0 && playerStates.lastDashTime <= currentTime){
-      playerItemData.YCordinate = playerItemData.YCordinate + 1;
+    if(playerControls.Shift && playerStates.dashCount > 0 && playerStates.nextDashTime <= currentTime){
+      // playerItemData.YCordinate = playerItemData.YCordinate + 1;
       --playerStates.dashCount;
       playerStates.jumpAvailable = false;
-      playerStates.lastDashTime = new Date(currentTime.getTime() + playerSettings.minDashDelay*(timeInterval/10));
+      playerStates.nextDashTime = new Date(currentTime.getTime() + playerSettings.minDashDelay*timeInterval);
       if(playerControls.ArrowLeft && playerControls.ArrowUp){
         playerItemData.YVelocity = 0.7 * dashVelocity;
         playerItemData.XVelocity = -0.7 * dashVelocity;
@@ -87,22 +84,28 @@ export function playerMovement(items, playerItemData, playerControls, playerSett
       if(![...DOMplayerCharacter.classList].includes("imgflip")){
         DOMplayerCharacter.classList.add("imgflip")
       };
-      let Xacceleration = -playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle - Math.PI/2);
+      
+      let Xacceleration = -playerAcceleration*Math.cos(playerStates.lastjumpableCollisionAngle - Math.PI/2);
+
       playerItemData.XVelocity += Xacceleration;
-      let YDirectionalVelocity = playerStates.lastRunnableCollisionAngle > Math.PI/2? 0 : 1;
-      let Yacceleration = YDirectionalVelocity*playerAcceleration*0.5 + YDirectionalVelocity*playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle);
-      playerItemData.YVelocity += Yacceleration;
+      let YDirectionalVelocity = playerStates.lastjumpableCollisionAngle > Math.PI/2? 0 : 1;
+      if(playerStates.jumpAvailable && YDirectionalVelocity){
+        let Yacceleration = gravityAcceleration + playerAcceleration*Math.sin(playerStates.lastjumpableCollisionAngle + Math.PI/2);
+        playerItemData.YVelocity += Yacceleration;
+      }
     }
 
     if(playerItemData.XVelocity < maxXVelocity && playerControls.ArrowRight){
       if([...DOMplayerCharacter.classList].includes("imgflip")){
         DOMplayerCharacter.classList.remove("imgflip");
       };
-      let Xacceleration = playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle - Math.PI/2);
+      let Xacceleration = playerAcceleration*Math.cos(playerStates.lastjumpableCollisionAngle - Math.PI/2);
       playerItemData.XVelocity += Xacceleration;
-      let YDirectionalVelocity = playerStates.lastRunnableCollisionAngle > Math.PI/2? -1 : 0;
-      let Yacceleration = -YDirectionalVelocity*playerAcceleration*0.5 + YDirectionalVelocity*playerAcceleration*Math.cos(playerStates.lastRunnableCollisionAngle)
-      playerItemData.YVelocity += Yacceleration;
+      let YDirectionalVelocity = playerStates.lastjumpableCollisionAngle > Math.PI/2? 1 : 0;
+      if(playerStates.jumpAvailable && YDirectionalVelocity){
+        let Yacceleration = gravityAcceleration + YDirectionalVelocity*playerAcceleration*Math.sin(playerStates.lastjumpableCollisionAngle - Math.PI/2);
+        playerItemData.YVelocity += Yacceleration;
+      }
     }
 
     if(!playerItemData.gravity) {
@@ -114,41 +117,43 @@ export function playerMovement(items, playerItemData, playerControls, playerSett
     }
 
     if(DOMplayerCharacter.offsetHeight >= playerItemData.ballradius*1.7
-      && playerItemData.YCordinate <= groundHeight
       && playerControls.ArrowDown) {
       DOMplayerCharacter.style.height = playerItemData.ballradius*1.8 + "px";
       playerCharacterImage.style.height = playerItemData.ballradius*1.8 + "px";
     }
-    else if(DOMplayerCharacter.offsetHeight <= playerItemData.ballradius*1.7 &&
-      (playerItemData.YCordinate > groundHeight || !playerControls.ArrowDown)){
+    else if(DOMplayerCharacter.offsetHeight <= playerItemData.ballradius*1.7 && !playerControls.ArrowDown){
       DOMplayerCharacter.style.height = playerItemData.ballradius*2 + "px";
       playerCharacterImage.style.height = playerItemData.ballradius*2 + "px";
     }
 }
 
-export function playerControlsManager(playerControls, playerStates) {
+export function playerControlsManager(playerControls, playerStates, playerInputHistory, ) {
   window.addEventListener("keydown", function (event) {
     if (event.defaultPrevented) {
       return; // Do nothing if the event was already processed
     }
 
+    let time = new Date();
+
     switch (event.key) {
       case " ":
         playerControls.Space = true;
         break;
-      case "ArrowUp":
+      case "ArrowUp" || "W":
         playerControls.ArrowUp = true;
+        playerInputHistory.lastUp = time;
         break;
       case "ArrowLeft":
         playerControls.ArrowLeft = true;
-        playerStates.lastMoveIsRight = false;
+        playerInputHistory.lastLeft = time;
         break;
       case "ArrowRight":
         playerControls.ArrowRight = true;
-        playerStates.lastMoveIsRight = true;
+        playerInputHistory.lastRight = time;
         break;
       case "ArrowDown":
         playerControls.ArrowDown = true;
+        playerInputHistory.lastDown = time;
         break;
       case "Shift":
         playerControls.Shift = true;

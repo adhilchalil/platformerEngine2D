@@ -1,11 +1,13 @@
-export function cameraAndTransitions(initialFrame, levelProperties, playerItem, cameraFrame, roomWidth, roomHeight) {
+export function cameraAndTransitions(initialFrame, levelProperties, playerItem, playerControls, playerInputHistory, cameraFrame, roomWidth, roomHeight, currentTime) {
     let XCameraPosition = cameraFrame.scrollLeft;
     let YCameraPosition = cameraFrame.scrollTop;
+
     let expectedXCameraPosition = XCameraPosition;
     let expectedYCameraPosition = YCameraPosition;
-    let playerPositionRatioX = 0.3;
-    let inversePlayerPositionRatioX = 1 - playerPositionRatioX;
+
+    let playerPositionRatioX = 0.4;
     let playerPositionRatioY = 0.5;
+    let inversePlayerPositionRatioX = 1 - playerPositionRatioX;
     let inversePlayerPositionRatioY = 1 - playerPositionRatioY;
 
     /*Horizontal Direction Camera Movement Control*/

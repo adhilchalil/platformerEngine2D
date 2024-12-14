@@ -4,15 +4,14 @@ const jumpResetAngleLeft = Number(process.env.NEXT_PUBLIC_PLAYER_JUMPRESET_ANGLE
 const jumpResetAngleRight = Number(process.env.NEXT_PUBLIC_PLAYER_JUMPRESET_ANGLE_RIGHT);
 const dashResetAngleLeft = Number(process.env.NEXT_PUBLIC_PLAYER_DASHRESET_ANGLE_LEFT);
 const dashResetAngleRight = Number(process.env.NEXT_PUBLIC_PLAYER_DASHRESET_ANGLE_RIGHT);
-const DashResetCollisionAngleRange = [jumpResetAngleRight*(Pi/180),jumpResetAngleLeft*(Pi/180)];
-const JumpResetCollisionAngleRange = [dashResetAngleRight*(Pi/180),dashResetAngleLeft*(Pi/180)];
+const JumpResetCollisionAngleRange = [jumpResetAngleRight*(Pi/180),jumpResetAngleLeft*(Pi/180)];
+const DashResetCollisionAngleRange = [dashResetAngleRight*(Pi/180),dashResetAngleLeft*(Pi/180)];
 
 export default function collision(items, playerStates, playerSettings, coordinateCheck, environmentStates, currentTime, playerDeathHandler) {
-    
     items.forEach((item1,index1) => {
         items.forEach((item2,index2) => {
-            // If both items are RIGID(collides but does not react to collisions) no collision can happen
-            if(index2 > index1 && !(item1.rigid && item2.rigid)){
+            // If both items are RIGID(does not react to collisions) no collision can happen
+            if(index2 > index1 && !(item1.rigid && item2.rigid) && (!item1.noCollision && !item2.noCollision)){
 
                 let collisionAngle = NaN;
 
@@ -36,7 +35,6 @@ export default function collision(items, playerStates, playerSettings, coordinat
                     if( totalDistance < collisionDistance && !(item1.rigid && item2.rigid)) {
 
                         if((item1.isPlayer || item2.isPlayer) && (item1.deathZone || item2.deathZone)){
-                            console.log("death");
                             playerDeathHandler();
                         }
 
@@ -51,17 +49,60 @@ export default function collision(items, playerStates, playerSettings, coordinat
                         overLapCorrection(item1, item2, overlappingDistance, horizontalDistance, verticalDistance, totalDistance, ballRadiusRatio);
 
                         if(item1.isPlayer && !item2.deathZone) {
-                            playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
+                            playerMovementResets(collisionAngle, playerStates, environmentStates, playerSettings, currentTime);
                         }
                         
                         else if(item2.isPlayer && !item1.deathZone) {
-                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
+                            playerMovementResets((Pi + collisionAngle)%Pi, playerStates, environmentStates, playerSettings, currentTime);
                         }
 
                         collisionVelocityExchange(item1, item2, collisionAngle, playerStates, environmentStates, avgElasticity);
                     }
                 }
-                
+                if(item1.type == "box" && item2.type == "box") {
+                    let item1CenterX = item1.XCordinate + item1.width/2;
+                    let item2CenterX = item2.XCordinate + item2.width/2;
+                    let item1CenterY = item1.YCordinate + item1.height/2;
+                    let item2CenterY = item2.YCordinate + item2.height/2;
+
+                    let collisionDistanceX = item1.width/2 + item2.width/2;
+                    let collisionDistanceY = item1.height/2 + item2.height/2;
+
+                    let verticalDistance = (item1CenterY - item2CenterY);
+                    let horizontalDistance = (item1CenterX - item2CenterX);
+                    
+                    if(verticalDistance > collisionDistanceY || horizontalDistance > collisionDistanceX)
+                        return;
+                    
+                    // let totalDistance = rootOfSquares([verticalDistance, horizontalDistance]);
+                    
+                    // if( totalDistance < collisionDistance && !(item1.rigid && item2.rigid)) {
+
+                    //     if((item1.isPlayer || item2.isPlayer) && (item1.deathZone || item2.deathZone)){
+                    //         playerDeathHandler();
+                    //     }
+
+                    //     let ballRadiusRatio = item1.ballradius/(collisionDistance);
+
+                    //     collisionAngle = horizontalDistance > 0? Math.asin(verticalDistance/totalDistance): Pi - Math.asin(verticalDistance/totalDistance);
+
+                    //     let avgElasticity = ((item1.elasticity == undefined? 1 : item1.elasticity) + (item2.elasticity == undefined? 1 : item2.elasticity))/2;
+                        
+                    //     let overlappingDistance = ((item1.ballradius + item2.ballradius) - totalDistance) + 1;
+
+                    //     overLapCorrection(item1, item2, overlappingDistance, horizontalDistance, verticalDistance, totalDistance, ballRadiusRatio);
+
+                    //     if(item1.isPlayer && !item2.deathZone) {
+                    //         playerMovementResets(collisionAngle, playerStates, environmentStates, playerSettings, currentTime);
+                    //     }
+                        
+                    //     else if(item2.isPlayer && !item1.deathZone) {
+                    //         playerMovementResets((Pi + collisionAngle)%Pi, playerStates, environmentStates, playerSettings, currentTime);
+                    //     }
+
+                    //     collisionVelocityExchange(item1, item2, collisionAngle, playerStates, environmentStates, avgElasticity);
+                    // }
+                }
                 //Ball to Box Collision
                 if(
                     (item1.type == "ball" && item2.type == "box") ||
@@ -121,7 +162,6 @@ export default function collision(items, playerStates, playerSettings, coordinat
                         let overlappingDistance = ball.ballradius - ActualDistanceFromBox;
                         if(ActualDistanceFromBox < ball.ballradius){
                             if((item1.isPlayer || item2.isPlayer) && (item1.deathZone || item2.deathZone)){
-                                console.log("death");
                                 playerDeathHandler();
                             }
                             let index = 0;
@@ -151,10 +191,10 @@ export default function collision(items, playerStates, playerSettings, coordinat
                             let avgElasticity = ((item1.elasticity == undefined? 1 : item1.elasticity) + (item2.elasticity == undefined? 1 : item2.elasticity))/2;
 
                             if(ball.isPlayer && !box.deathZone){
-                                playerMovementResets(collisionAngle, playerStates, playerSettings, currentTime);
+                                playerMovementResets(collisionAngle, playerStates, environmentStates, playerSettings, currentTime);
                             }
                             else if(box.isPlayer && !ball.deathZone){
-                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, playerSettings, currentTime);
+                                playerMovementResets((Pi + collisionAngle)%Pi, playerStates, environmentStates, playerSettings, currentTime);
                             }
                             
                             collisionVelocityExchange(ball, box, collisionAngle, playerStates, environmentStates, avgElasticity);
@@ -286,14 +326,15 @@ let rootOfPositiveSquares = (numbers) => {
     return Math.sqrt(sumOfSquares);
 }
 
-let playerMovementResets = (collisionAngle, playerStates, playerSettings, currentTime) => {
+let playerMovementResets = (collisionAngle, playerStates, environmentStates, playerSettings, currentTime) => {
+    playerStates.nextDashTime = new Date(currentTime.getTime());
     if(collisionAngle > DashResetCollisionAngleRange[0] && collisionAngle < DashResetCollisionAngleRange[1]){
         playerStates.dashCount = playerSettings.maxDashCount;
-        playerStates.lastRunnableCollisionAngle = collisionAngle;
+        playerStates.lastjumpableCollisionAngle = collisionAngle;
     }
     if(collisionAngle >= JumpResetCollisionAngleRange[0] && collisionAngle < JumpResetCollisionAngleRange[1]){
         playerStates.jumpAvailable = true;
-        playerStates.lastJumpableCollisionTime = currentTime;
+        playerStates.lastJumpableCollisionTime = new Date(currentTime.getTime() + playerSettings.minJumpDeadline*(environmentStates.timeInterval));
     }
 }
 

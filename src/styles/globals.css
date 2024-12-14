@@ -32,12 +32,6 @@ body {
   }
 }
 
-:root{
-  --playerpositionX: -50px;
-  --playerpositionY: -50px;
-  --lightRadius: 0px;
-}
-
 img, video {
   max-width: none;
 }
@@ -85,8 +79,80 @@ img, video {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle var(--lightRadius) at var(--playerpositionX) var(--playerpositionY), rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,0.95) 100%);
+  /* background: radial-gradient(circle var(--lightRadius) at var(--playerpositionX) var(--playerpositionY), rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0.7) 90%, rgba(0,0,0,1) 100%); */
+  /* radial-gradient(circle var(--lightRadius) at var(--playerpositionX2) var(--playerpositionY2), rgba(0,0,0,0) 0%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,0.8) 100%); */
+
 }
+
+/* .item {
+  --angle: 360deg / var(--sides, 6);
+  --r: 20%;
+  --size: 20%;
+  --posX: 50%;
+  --posY: 50%;
+  --color: rgb(220 220 0);
+  --grad: var(--color) var(--size), transparent calc(var(--size) + 1px);
+  
+  --a1: calc(var(--angle) * 1);
+  --x1: calc(var(--posX) + (cos(var(--a1)) * var(--r)));
+  --y1: calc(var(--posY) + (sin(var(--a1)) * var(--r)));
+  
+  --a2: calc(var(--angle) * 2);
+  --x2: calc(var(--posX) + (cos(var(--a2)) * var(--r)));
+  --y2: calc(var(--posY) + (sin(var(--a2)) * var(--r)));
+  
+  --a3: calc(var(--angle) * 3);
+  --x3: calc(var(--posX) + (cos(var(--a3)) * var(--r)));
+  --y3: calc(var(--posY) + (sin(var(--a3)) * var(--r)));
+  
+  --a4: calc(var(--angle) * 4);
+  --x4: calc(var(--posX) + (cos(var(--a4)) * var(--r)));
+  --y4: calc(var(--posY) + (sin(var(--a4)) * var(--r)));
+  
+  --a5: calc(var(--angle) * 5);
+  --x5: calc(var(--posX) + (cos(var(--a5)) * var(--r)));
+  --y5: calc(var(--posY) + (sin(var(--a5)) * var(--r)));
+  
+  --a6: calc(var(--angle) * 6);
+  --x6: calc(var(--posX) + (cos(var(--a6)) * var(--r)));
+  --y6: calc(var(--posY) + (sin(var(--a6)) * var(--r)));
+  
+  --a7: calc(var(--angle) * 7);
+  --x7: calc(var(--posX) + (cos(var(--a7)) * var(--r)));
+  --y7: calc(var(--posY) + (sin(var(--a7)) * var(--r)));
+  
+  --a8: calc(var(--angle) * 8);
+  --x8: calc(var(--posX) + (cos(var(--a8)) * var(--r)));
+  --y8: calc(var(--posY) + (sin(var(--a8)) * var(--r)));
+  
+  --a9: calc(var(--angle) * 9);
+  --x9: calc(var(--posX) + (cos(var(--a9)) * var(--r)));
+  --y9: calc(var(--posY) + (sin(var(--a9)) * var(--r)));
+  
+  --a10: calc(var(--angle) * 10);
+  --x10: calc(var(--posX) + (cos(var(--a10)) * var(--r)));
+  --y10: calc(var(--posY) + (sin(var(--a10)) * var(--r)));
+  
+  --a11: calc(var(--angle) * 11);
+  --x11: calc(var(--posX) + (cos(var(--a11)) * var(--r)));
+  --y11: calc(var(--posY) + (sin(var(--a11)) * var(--r)));
+  
+  --baseGradient: 
+    /* Center */
+    /* radial-gradient(
+      circle at var(--posX) var(--posY),
+      var(--color) calc(var(--r) * 1.5), transparent calc(var(--r) * 1.5 + 1px)
+    );
+  
+  aspect-ratio: 1;
+  border: 0.3rem solid;
+  position: absolute;
+  
+  .lightingContainer {
+    -webkit-mask-image: var(--baseGradient);
+    mask-image: var(--baseGradient);
+  } */
+/* } */
 
 body{
   zoom: 67%;
