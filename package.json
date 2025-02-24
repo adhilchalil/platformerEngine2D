@@ -2,22 +2,26 @@
   "name": "2d-platformer-engine",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://github.com/adhilchalil/platformerEngine2D",
   "scripts": {
     "dev": "next dev",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d out",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "next": "14.2.4",
     "react": "^18",
     "react-dom": "^18",
-    "tailwindcss": "^3.4.1",
-    "next": "14.2.4"
+    "tailwindcss": "^3.4.1"
   },
   "devDependencies": {
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
     "eslint": "^8",
-    "eslint-config-next": "14.2.4"
+    "eslint-config-next": "14.2.4",
+    "gh-pages": "^6.3.0",
+    "postcss": "^8",
+    "tailwindcss": "^3.4.1"
   }
 }
