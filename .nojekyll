@@ -1,0 +1,9 @@
+created specifically by Adhil to stop nextjs github pages deployment from ignoring _next file which contain all css,js.
+
+
+This should only be necessary if your site uses files or directories that start with underscores since
+Jekyll considers these to be special resources and does not copy them to the final site.
+
+Jekyll is a static site generator.
+It takes text written in your favorite markup language and uses layouts to create a static website.
+Useful for SEO purposes I guess.
