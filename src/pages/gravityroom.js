@@ -3,6 +3,7 @@ import Box from "@/objects/box";
 import allFrames from "@/physics/allPhysics";
 import { playerControlsManager } from "@/itemControl/playermovement";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 var frameIntervalObject = null;
 var allRenderedItems = [];
@@ -103,13 +104,13 @@ const playerItems= [
         elasticity: 0,
         isPlayer: true,
         rigid: false,
-        srcImage: "/slime_animate.gif",
+        srcImage: "./slime_animate.gif",
         idleFrameCount: 1,
-        walkFramesSrc: "/walk_cycle.png",
+        walkFramesSrc: "./walk_cycle.png",
         walkFrameCount: 0,
-        jumpFramesSrc: "/slime_jump_up.png",
+        jumpFramesSrc: "./slime_jump_up.png",
         jumpFrameCount: 1,
-        fallFrameSrc: "/slime_jump_down.png",
+        fallFrameSrc: "./slime_jump_down.png",
         fallFrameCount: 1,
         modelAlignmentTop: 54,
         modelAlignmentLeft: 43,
@@ -420,7 +421,7 @@ const allLevelData = [
                 //     gravity: false,
                 //     elasticity: 0,
                 //     rigid: true,
-                //     srcImage: "/platform2.png",
+                //     srcImage: "./platform2.png",
                 //     hitboxWidthRatio: 1.1,
                 //     modelAlignmentTop: 51,
                 //     hitboxHeightRatio: 1.5
@@ -482,7 +483,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/fire.gif",
+                    srcImage: "./fire.gif",
                     lightSource: true,
                     lightSourceRadius: 500, 
                     hitboxWidthRatio: 1.8,
@@ -505,7 +506,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/fire.gif",
+                    srcImage: "./fire.gif",
                     lightSource: true,
                     lightSourceRadius: 500,
                     hitboxWidthRatio: 1.8,
@@ -528,7 +529,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/fire.gif",
+                    srcImage: "./fire.gif",
                     lightSource: true,
                     lightSourceRadius: 500,
                     hitboxWidthRatio: 1.8,
@@ -550,7 +551,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/platform3.png",
+                    srcImage: "./platform3.png",
                     hitboxWidthRatio: 1,
                     hitboxHeightRatio: 1.7,
                     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -569,7 +570,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/platform3.png",
+                    srcImage: "./platform3.png",
                     hitboxWidthRatio: 1,
                     hitboxHeightRatio: 1.7,
                     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -588,7 +589,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/platform2.png",
+                    srcImage: "./platform2.png",
                     hitboxWidthRatio: 1.1,
                     modelAlignmentTop: 51,
                     hitboxHeightRatio: 1.5
@@ -686,7 +687,7 @@ const allLevelData = [
                     gravity: false,
                     elasticity: 0,
                     rigid: true,
-                    srcImage: "/fire.gif",
+                    srcImage: "./fire.gif",
                     lightSource: true,
                     lightSourceRadius: 1000,
                     lightSourceFlicker: true,
@@ -724,7 +725,7 @@ const allLevelData = [
                 //     gravity: false,
                 //     elasticity: 0,
                 //     rigid: true,
-                //     srcImage: "/platform.png",
+                //     srcImage: "./platform.png",
                 //     hitboxWidthRatio: 1.1,
                 //     hitboxHeightRatio: 1.5
                 // },
@@ -741,7 +742,7 @@ const allLevelData = [
                 //     gravity: false,
                 //     elasticity: 0,
                 //     rigid: true,
-                //     srcImage: "/platform3.png",
+                //     srcImage: "./platform3.png",
                 //     hitboxWidthRatio: 1,
                 //     hitboxHeightRatio: 1.7,
                 //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -760,7 +761,7 @@ const allLevelData = [
                 //     gravity: false,
                 //     elasticity: 0,
                 //     rigid: true,
-                //     srcImage: "/platform3.png",
+                //     srcImage: "./platform3.png",
                 //     hitboxWidthRatio: 1,
                 //     hitboxHeightRatio: 1.7,
                 //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -779,7 +780,7 @@ const allLevelData = [
                 //     gravity: false,
                 //     elasticity: 0,
                 //     rigid: true,
-                //     srcImage: "/platform2.png",
+                //     srcImage: "./platform2.png",
                 //     modelAlignmentTop: 51,
                 //     hitboxWidthRatio: 1.1,
                 //     hitboxHeightRatio: 1.5
@@ -893,7 +894,7 @@ const allLevelData = [
             //     gravity: false,
             //     elasticity: 0,
             //     rigid: true,
-            //     srcImage: "/platform.png",
+            //     srcImage: "./platform.png",
             //     hitboxWidthRatio: 1.1,
             //     hitboxHeightRatio: 1.5
             // },
@@ -910,7 +911,7 @@ const allLevelData = [
             //     gravity: false,
             //     elasticity: 0,
             //     rigid: true,
-            //     srcImage: "/platform3.png",
+            //     srcImage: "./platform3.png",
             //     hitboxWidthRatio: 1,
             //     hitboxHeightRatio: 1.7,
             //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -929,7 +930,7 @@ const allLevelData = [
             //     gravity: false,
             //     elasticity: 0,
             //     rigid: true,
-            //     srcImage: "/platform3.png",
+            //     srcImage: "./platform3.png",
             //     hitboxWidthRatio: 1,
             //     hitboxHeightRatio: 1.7,
             //     modelAlignmentLeft: 50, // 0 to 100, default model alignment is 50
@@ -1178,12 +1179,12 @@ export default function Gravityroom(){
                         {[...Array(item[`${type.toLowerCase()}FrameCount`])].map((val, i) => {
                             if(item[`${type.toLowerCase()}FrameCount`]){
                                 AllPlayerImages.push(
-                                    <img key={"hidden" + playerIndex + val + i + "resource" + index} src={playerItems[0][`player${type}AnimationTitle`] + (i + 1) + "." + playerItems[0][`player${type}AnimationFormat`]}></img>
+                                    <img alt={"hidden" + playerIndex + val + i + "resource" + index} key={"hidden" + playerIndex + val + i + "resource" + index} src={playerItems[0][`player${type}AnimationTitle`] + (i + 1) + "." + playerItems[0][`player${type}AnimationFormat`]}></img>
                                 );      
                             }
                         })}
                     )
-                    item.srcImage? AllPlayerImages.push(<img key={"hiddenImageLevelItems" + playerIndex} src={item.srcImage}></img>):"";
+                    item.srcImage? AllPlayerImages.push(<img alt={"hiddenImageLevelItems" + playerIndex} key={"hiddenImageLevelItems" + playerIndex} src={item.srcImage}></img>):"";
                     return <>
                         {AllPlayerImages.map((htmlObj) => htmlObj)}
                     </>;
@@ -1197,13 +1198,13 @@ export default function Gravityroom(){
                             {[...Array(item[`${type.toLowerCase()}FrameCount`])].map((val, i) => {
                                 if(item[`${type.toLowerCase()}FrameCount`]){
                                     AllLevelImages.push(
-                                        <img key={"hidden" + levelIndex + "level" + val + i + "resource" + index} src={item[`player${type}AnimationTitle`] + (i + 1) + "." + item[`player${type}AnimationFormat`]}></img>
+                                        <img alt={"hidden" + levelIndex + "level" + val + i + "resource" + index} key={"hidden" + levelIndex + "level" + val + i + "resource" + index} src={item[`player${type}AnimationTitle`] + (i + 1) + "." + item[`player${type}AnimationFormat`]}></img>
                                     );      
                                 }
                             })}
                         )
-                        item.srcImage? AllLevelImages.push(<img key={"hiddenImage" + levelIndex + "LevelItems" + i} src={item.srcImage}></img>):"";
-                        item.styles?.backgroundImage? AllLevelImages.push(<img key={"hiddenImage" + levelIndex + "BgLevelItems" + i} src={item.styles.backgroundImage.split("'")[1]}></img>):"";
+                        item.srcImage? AllLevelImages.push(<img alt={"hiddenImage" + levelIndex + "LevelItems" + i} key={"hiddenImage" + levelIndex + "LevelItems" + i} src={item.srcImage}></img>):"";
+                        item.styles?.backgroundImage? AllLevelImages.push(<img alt={"hiddenImage" + levelIndex + "BgLevelItems" + i} key={"hiddenImage" + levelIndex + "BgLevelItems" + i} src={item.styles.backgroundImage.split("'")[1]}></img>):"";
                     })
                     return <>{AllLevelImages.map((htmlObj) => htmlObj)}</>;
                 })}
